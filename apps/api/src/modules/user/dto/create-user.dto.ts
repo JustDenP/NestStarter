@@ -5,7 +5,6 @@ import { IsUsername } from '@common/decorators/validators/is-username.decorator'
 import { MinMaxLength } from '@common/decorators/validators/min-max-length.decorator';
 import { User } from '@entities';
 import { IsEmail, IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class CreateUserDTO {
   /**
@@ -27,14 +26,9 @@ export class CreateUserDTO {
    * Email of user
    * @example justdenp@gmail.com
    */
-  @IsNotEmpty({ message: i18nValidationMessage('validation.isNotEmpty') })
-  @IsUnique(() => User, 'email')
-  @IsEmail(
-    {},
-    {
-      message: i18nValidationMessage('validation.isValid'),
-    },
-  )
+  @IsNotEmpty()
+  // @IsUnique(() => User, 'email')
+  @IsEmail()
   email: string;
 
   /**
@@ -43,7 +37,7 @@ export class CreateUserDTO {
    */
   @IsString()
   @MinMaxLength({ minLength: 6, maxLength: 50 })
-  @IsPassword({ message: i18nValidationMessage('validation.isPassword') })
+  @IsPassword()
   password: string;
 
   /**
@@ -51,7 +45,7 @@ export class CreateUserDTO {
    * @example John
    */
   @IsString()
-  @MinMaxLength({ maxLength: 50 })
+  @MinMaxLength({ minLength: 3, maxLength: 50 })
   firstName: string;
 
   /**
@@ -59,6 +53,6 @@ export class CreateUserDTO {
    * @example Doe
    */
   @IsString()
-  @MinMaxLength({ maxLength: 50 })
+  @MinMaxLength({ minLength: 3, maxLength: 50 })
   lastName: string;
 }

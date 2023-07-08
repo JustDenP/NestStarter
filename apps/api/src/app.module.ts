@@ -1,3 +1,4 @@
+import { IsUniqueConstraint } from '@common/decorators/validators/is-unique.decorator';
 import { StaticTimeoutInterceptor } from '@common/interceptors/static-timeout-handle.interceptor';
 import { RealIpMiddleware } from '@common/middlewares/ip.middleware';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
@@ -20,12 +21,14 @@ import { UserModule } from './modules/user/user.module';
       imports: [ApiConfigModule],
       useFactory: () => getOrmConfig(false),
     }),
+    // NestI18nModule,
     HealthCheckerModule,
     AuthModule,
     UserModule,
   ],
   controllers: [],
   providers: [
+    IsUniqueConstraint,
     {
       provide: APP_INTERCEPTOR,
       useClass: StaticTimeoutInterceptor,

@@ -17,6 +17,7 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import bodyParser from 'body-parser';
 import chalk from 'chalk';
+import { useContainer } from 'class-validator';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
@@ -32,6 +33,8 @@ async function bootstrap() {
   });
 
   const logger = new Logger('Bootstrap');
+
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   AppUtils.killAppWithGrace(app);
 
@@ -74,7 +77,7 @@ async function bootstrap() {
       dismissDefaultMessages: false,
       errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       exceptionFactory: (errors) => new UnprocessableEntityException(errors),
-      enableDebugMessages: true,
+      enableDebugMessages: isDevelopment,
       validationError: {
         target: false,
         value: false,
@@ -95,10 +98,10 @@ async function bootstrap() {
    */
   app.enableVersioning();
 
+  const reflector = app.get(Reflector);
   /**
    * Exception filters
    */
-  const reflector = app.get(Reflector);
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalFilters(new QueryFailedFilter());
 

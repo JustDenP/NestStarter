@@ -18,8 +18,8 @@ class IsPasswordConstraint implements ValidatorConstraintInterface {
   defaultMessage(args: ValidationArguments) {
     const property = args.property;
 
-    return `${property} should contain at least one lowercase letter, one uppercase letter,
-    one numeric digit, and one special character`;
+    return `${property} should contain at least one lowercase letter,
+    one uppercase letter, one numeric digit, and one special character`;
   }
 }
 

@@ -1,3 +1,4 @@
+import { Roles } from '@common/@types/enums/roles.enum';
 import { PageDTO } from '@common/database/types/page.dto';
 import { PageOptionsDTO } from '@common/database/types/page-options.dto';
 import { User } from '@entities';
@@ -8,6 +9,7 @@ import { BaseService } from '@modules/@lib/base/base.service';
 import { Injectable } from '@nestjs/common';
 
 import { CreateUserDTO } from './dto/create-user.dto';
+import { RegisterUserLocalDTO } from './dto/sign/user-register.dto';
 
 /**
  * If the request URI indicates the location of a single resource, we use 404 Not found.
@@ -38,10 +40,18 @@ export class UserService extends BaseService<User> {
     );
   }
 
-  async create(data: CreateUserDTO): Promise<User> {
-    const entity = this.create(data);
-    await this.em.persistAndFlush(entity);
+  /**
+   * Register new user
+   * @param data {@link CreateUserDTO}
+   * @returns User
+   */
+  public async register(data: RegisterUserLocalDTO) {
+    const user = {
+      ...data,
+      roles: [Roles.CLIENT],
+      isActive: true,
+    };
 
-    return entity;
+    return this.userRepository.create(user);
   }
 }

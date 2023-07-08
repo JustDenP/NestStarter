@@ -1,6 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
 import { MaxLength, MinLength } from 'class-validator';
-import { i18nValidationMessage } from 'nestjs-i18n';
 
 import { IsMinMaxLengthOptions } from './validator.interface';
 
@@ -12,14 +11,5 @@ import { IsMinMaxLengthOptions } from './validator.interface';
 export const MinMaxLength = (ops?: IsMinMaxLengthOptions) => {
   const options: IsMinMaxLengthOptions = { minLength: 2, maxLength: 500, each: false, ...ops };
 
-  return applyDecorators(
-    MinLength(options.minLength!, {
-      message: i18nValidationMessage('validation.minLength'),
-      each: options.each,
-    }),
-    MaxLength(options.maxLength!, {
-      message: i18nValidationMessage('validation.maxLength'),
-      each: options.each,
-    }),
-  );
+  return applyDecorators(MinLength(options.minLength), MaxLength(options.maxLength));
 };
