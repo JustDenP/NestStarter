@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src",
+    "lib": ["ES2021", "dom"],
+    "outDir": "dist",
+    "paths": {
+      "@common/*": ["./common/*"],
+      "@entities": ["./entities/index"],
+      "@generated": ["./generated/index"],
+      "@lib/*": ["./modules/lib/*"],
+      "@modules/*": ["./modules/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist"],
+  "extends": "@local/tsconfig/nestjs.json",
+  "include": ["test/**/*", "src/**/*", ".eslint.json"]
+}

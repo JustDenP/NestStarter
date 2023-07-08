@@ -1,0 +1,111 @@
+{
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es6": true,
+    "node": true
+  },
+  "extends": [
+    "plugin:import/typescript",
+    "plugin:import/recommended",
+    "plugin:prettier/recommended",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:security/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint", "prettier", "simple-import-sort", "import"],
+  "root": true,
+  "rules": {
+    "arrow-body-style": "error",
+    "arrow-parens": ["error", "always"],
+    "constructor-super": "error",
+    "dot-notation": "off",
+    "eol-last": "error",
+    "guard-for-in": "error",
+    "id-match": "error",
+    "import/no-unresolved": "error",
+    "max-classes-per-file": ["warn", 5],
+    "max-len": [
+      "warn",
+      {
+        "code": 120
+      }
+    ],
+    "no-await-in-loop": "error",
+    "no-else-return": "error",
+    "no-implicit-coercion": "error",
+    "no-multi-spaces": "error",
+    "no-restricted-imports": "off",
+    "no-useless-return": "error",
+    "object-curly-spacing": ["error", "always"],
+    "padding-line-between-statements": [
+      "error",
+      {
+        "blankLine": "always",
+        "next": "return",
+        "prev": "*"
+      },
+      {
+        "blankLine": "always",
+        "next": "try",
+        "prev": "*"
+      },
+      {
+        "blankLine": "always",
+        "next": "*",
+        "prev": "try"
+      },
+      {
+        "blankLine": "always",
+        "next": "block-like",
+        "prev": "*"
+      },
+      {
+        "blankLine": "always",
+        "next": "*",
+        "prev": "block-like"
+      },
+      {
+        "blankLine": "always",
+        "next": "throw",
+        "prev": "*"
+      },
+      {
+        "blankLine": "always",
+        "next": "*",
+        "prev": "var"
+      }
+    ],
+    "prettier/prettier": [
+      "error",
+      {
+        "bracketSpacing": true,
+        "singleQuote": true,
+        "tabWidth": 2,
+        "trailingComma": "all"
+      }
+    ],
+    "simple-import-sort/exports": "error",
+    /**
+     * plugin:simple-import-sort
+     */
+    "simple-import-sort/imports": "error"
+  },
+  "settings": {
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"]
+    },
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      },
+      "typescript": {
+        "alwaysTryTypes": true
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+node_modules
+dist
+migrations
+test
+tests
+spec
+**/*.spec.ts
+out

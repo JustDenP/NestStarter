@@ -1,0 +1,30 @@
+{
+  "extends": [
+    "../../.eslintrc.json"
+  ],
+  "overrides": [],
+  "env": {
+    "browser": false,
+    "es6": true,
+    "jest": true,
+    "node": true
+  },
+  "ignorePatterns": [
+    "migrations",
+    "src/generated"
+  ],
+  "parserOptions": {
+    "createDefaultProgram": false,
+    "project": "tsconfig.json",
+    "sourceType": "module",
+    "tsconfigRootDir": "./"
+  },
+  "settings": {
+    "import/resolver": {
+      "typescript": {
+        "alwaysTryTypes": true,
+        "project": "./tsconfig.json"
+      }
+    }
+  }
+}
