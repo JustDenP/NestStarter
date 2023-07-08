@@ -14,8 +14,8 @@ build
 /.pnpm-store
 .backup
 
-.env
-production.env
+*.env
+!example.env
 
 # Logs
 logs
