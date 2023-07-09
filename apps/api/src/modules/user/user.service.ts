@@ -2,14 +2,14 @@ import { Roles } from '@common/@types/enums/roles.enum';
 import { PageDTO } from '@common/database/types/page.dto';
 import { PageOptionsDTO } from '@common/database/types/page-options.dto';
 import { User } from '@entities';
+import { RequiredEntityData } from '@mikro-orm/core/typings';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { BaseRepository } from '@modules/@lib/base/base.repository';
 import { BaseService } from '@modules/@lib/base/base.service';
 import { Injectable } from '@nestjs/common';
 
-import { CreateUserDTO } from './dto/create-user.dto';
-import { RegisterUserLocalDTO } from './dto/sign/user-register.dto';
+import { RegisterUserLocalDTO, RegisterUserOAuthDTO } from './dto/sign/user-register.dto';
 
 /**
  * If the request URI indicates the location of a single resource, we use 404 Not found.
@@ -42,16 +42,19 @@ export class UserService extends BaseService<User> {
 
   /**
    * Register new user
-   * @param data {@link CreateUserDTO}
+   * @param data {@link RegisterUserLocalDTO} {@link RegisterUserOAuthDTO}
    * @returns User
    */
-  public async register(data: RegisterUserLocalDTO) {
-    const user = {
+  public register(data: RegisterUserLocalDTO | RegisterUserOAuthDTO) {
+    const user: RequiredEntityData<User> = {
       ...data,
       roles: [Roles.CLIENT],
       isActive: true,
     };
 
-    return this.userRepository.create(user);
+    const newUser = this.userRepository.create(user);
+    this.em.persistAndFlush(newUser);
+
+    return this.userRepository.findOne(newUser);
   }
 }

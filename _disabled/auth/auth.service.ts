@@ -9,8 +9,8 @@ import { Roles } from '@local/shared-types';
 import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
-import { UserService } from '../user/user.service';
 import { ApiConfigService } from '../@lib/config/config.service';
+import { UserService } from '../user/user.service';
 import { AuthenticationStrategyType } from './types/constants/authentication-strategy-type.enum';
 import { TokenType } from './types/constants/token-type.enum';
 import type {

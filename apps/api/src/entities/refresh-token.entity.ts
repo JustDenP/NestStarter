@@ -6,7 +6,7 @@ import { User } from './user.entity';
 @Entity()
 export class RefreshToken extends AbstractIdEntity {
   @Property()
-  expiresIn!: Date;
+  expiresIn: Date;
 
   @ManyToOne({
     eager: false,

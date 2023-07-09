@@ -55,7 +55,7 @@ export abstract class BaseService<Entity extends AbstractBaseEntity> {
   async _update(id, data: EntityData<Entity>): Promise<Entity> {
     const entity = await this._findOne(id);
     const updatedEntity = this.EM.assign(entity, data);
-    await this.EM.flush();
+    this.EM.flush();
 
     return updatedEntity;
   }
@@ -80,8 +80,7 @@ export abstract class BaseService<Entity extends AbstractBaseEntity> {
     const entity = await this._findOne(id, {
       populate: true,
     });
-    const deleted = this.repository.delete(entity);
-    await this.EM.flush();
+    const deleted = this.repository.deleteAndReturn(entity);
 
     return deleted;
   }

@@ -4,7 +4,7 @@ import { IsUnique } from '@common/decorators/validators/is-unique.decorator';
 import { IsUsername } from '@common/decorators/validators/is-username.decorator';
 import { MinMaxLength } from '@common/decorators/validators/min-max-length.decorator';
 import { User } from '@entities';
-import { IsEmail, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsEnum, IsString } from 'class-validator';
 
 export class CreateUserDTO {
   /**
@@ -26,8 +26,7 @@ export class CreateUserDTO {
    * Email of user
    * @example justdenp@gmail.com
    */
-  @IsNotEmpty()
-  // @IsUnique(() => User, 'email')
+  @IsUnique(() => User, 'email')
   @IsEmail()
   email: string;
 
@@ -45,7 +44,7 @@ export class CreateUserDTO {
    * @example John
    */
   @IsString()
-  @MinMaxLength({ minLength: 3, maxLength: 50 })
+  @MinMaxLength({ minLength: 3, maxLength: 20 })
   firstName: string;
 
   /**
@@ -53,6 +52,6 @@ export class CreateUserDTO {
    * @example Doe
    */
   @IsString()
-  @MinMaxLength({ minLength: 3, maxLength: 50 })
+  @MinMaxLength({ minLength: 3, maxLength: 20 })
   lastName: string;
 }

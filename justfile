@@ -1,3 +1,4 @@
+# This file is not used for now
 
 # prints all availabe commands
 default:

@@ -26,7 +26,6 @@ export class IsUniqueConstraint implements ValidatorConstraintInterface {
     value: Entity[Field],
     context: IsUniqueValidationContext,
   ): Promise<boolean> {
-    console.log(this.em);
     const [entityType, field] = context.constraints;
     const result = await this.em.count(entityType(), { [field]: value });
 

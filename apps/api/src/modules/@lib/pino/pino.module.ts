@@ -46,7 +46,7 @@ const basePinoOptions = {
                 targets: [
                   {
                     target: 'pino-pretty',
-                    level: 'info', // log only info and above to console
+                    level: 'info', // log only and above to console
                     options: {
                       ...basePinoOptions,
                       colorize: true,

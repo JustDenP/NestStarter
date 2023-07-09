@@ -32,8 +32,8 @@ export class BaseRepository<T extends AbstractBaseEntity> extends EntityReposito
    * @return entity
    * @memberof BaseRepositroy
    */
-  delete(entity: T): T {
-    this.em.remove(entity).persist(entity);
+  deleteAndReturn(entity: T): T {
+    this.em.remove(entity).flush();
 
     return entity;
   }

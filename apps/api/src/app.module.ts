@@ -2,6 +2,7 @@ import { IsUniqueConstraint } from '@common/decorators/validators/is-unique.deco
 import { StaticTimeoutInterceptor } from '@common/interceptors/static-timeout-handle.interceptor';
 import { RealIpMiddleware } from '@common/middlewares/ip.middleware';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { NestHttpModule } from '@modules/@lib/http.module';
 import { NestPinoModule } from '@modules/@lib/pino';
 import { AuthModule } from '@modules/auth/auth.module';
 import type { MiddlewareConsumer, NestModule } from '@nestjs/common';
@@ -21,7 +22,7 @@ import { UserModule } from './modules/user/user.module';
       imports: [ApiConfigModule],
       useFactory: () => getOrmConfig(false),
     }),
-    // NestI18nModule,
+    NestHttpModule,
     HealthCheckerModule,
     AuthModule,
     UserModule,
