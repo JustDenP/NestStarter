@@ -1,17 +1,31 @@
 import { User } from '@entities';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { BaseRepository } from '@modules/@lib/base/base.repository';
 import { ApiConfigService } from '@modules/@lib/config/config.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
+import { RefreshToken } from 'entities/refresh-token.entity';
+import { JwtPayload, TokenExpiredError } from 'jsonwebtoken';
 
 import { TokenRepository } from './token.repository';
 
 @Injectable()
 export class TokenService {
   constructor(
+    @InjectRepository(User)
+    private readonly userRepository: BaseRepository<User>,
+    @InjectRepository(RefreshToken)
     private readonly tokenRepository: TokenRepository,
     private readonly jwtService: JwtService,
     private readonly configService: ApiConfigService,
   ) {}
+
+  readonly msgs = {
+    malformed: 'Refresh token malformed!. Please login again!',
+    expired: 'Refresh token expired!. Please login again!',
+    notFound: 'Refresh token not found!. Please login again!',
+    revoked: 'Refresh token revoked!. Please login again!',
+  };
 
   private readonly BASE_OPTIONS: JwtSignOptions = {
     issuer: 'myapp',
@@ -42,7 +56,7 @@ export class TokenService {
    * @param {User} user - User - The user object that we want to generate a token for.
    * @returns JWT signed string
    */
-  generateRefreshToken(user: User): Promise<string> {
+  async generateRefreshToken(user: User): Promise<string> {
     const token = this.tokenRepository.createRefreshToken(user);
 
     const options: JwtSignOptions = {
@@ -53,5 +67,89 @@ export class TokenService {
     };
 
     return this.jwtService.signAsync({}, options);
+  }
+
+  /**
+   * It takes an encoded refresh token, decodes it, finds the user and token in the database, and
+   * returns them
+   * @param {string} encoded - string - The encoded refresh token
+   * @returns An object with a user and a token.
+   */
+  async resolveRefreshToken(encoded: string): Promise<{ user: User; token: RefreshToken }> {
+    const decoded = this.decodeRefreshToken(encoded);
+    const token = await this.getStoredTokenFromRefreshTokenPayload(decoded);
+
+    if (!token) new UnauthorizedException(this.msgs.notFound);
+    if (token.isRevoked) new UnauthorizedException(this.msgs.revoked);
+
+    const user = await this.getUserFromRefreshTokenPayload(token);
+    if (!user) new UnauthorizedException(this.msgs.malformed);
+
+    return { user, token };
+  }
+
+  /**
+   * It takes a refresh token, resolves it to a user, and then generates an access token for that user
+   * @param {string} refresh - string - The refresh token that was sent to the client.
+   * @returns { token: string; user: User }
+   */
+  async createAccessTokenFromRefreshToken(refresh: string): Promise<{ token: string; user: User }> {
+    const { user } = await this.resolveRefreshToken(refresh);
+    const token = await this.generateAccessToken(user);
+
+    return { token, user };
+  }
+
+  /**
+   * It decodes the refresh token and throws an error if the token is expired or malformed
+   * @param {string} token - The refresh token to decode.
+   * @returns The payload of the token.
+   */
+  decodeRefreshToken(token: string): Promise<JwtPayload> {
+    try {
+      return this.jwtService.verifyAsync(token);
+    } catch (error) {
+      throw error instanceof TokenExpiredError
+        ? new UnauthorizedException(this.msgs.expired)
+        : new UnauthorizedException(this.msgs.malformed);
+    }
+  }
+
+  /**
+   * It takes a refresh token payload, extracts the token ID from it, and then uses that token ID to
+   * find the corresponding refresh token in the database
+   * @param {JwtPayload} payload - IJwtPayload
+   * @returns Promise<RefreshToken>
+   */
+  async getStoredTokenFromRefreshTokenPayload(payload: JwtPayload): Promise<RefreshToken> {
+    const tokenId = payload.jti;
+
+    if (!tokenId) throw new UnauthorizedException(this.msgs.malformed);
+
+    return this.tokenRepository.findTokenById(Number(tokenId));
+  }
+
+  /**
+   * It takes a refresh token payload, extracts the user ID from it, and then returns the user
+   * @param {JwtPayload} payload - IJwtPayload
+   * @returns User
+   */
+  async getUserFromRefreshTokenPayload(payload: JwtPayload): Promise<User> {
+    const subId = payload.subject;
+
+    if (!subId) throw new UnauthorizedException(this.msgs.malformed);
+
+    return this.userRepository.findOne({
+      id: subId,
+    });
+  }
+
+  /**
+   * It deletes all the refresh token for the given user
+   * @param {User} user - The user object that we want to delete the refresh token for.
+   * @returns Promise<boolean>.
+   */
+  async deleteRefreshTokenForUser(user: User): Promise<boolean> {
+    return this.tokenRepository.deleteTokensForUser(user);
   }
 }

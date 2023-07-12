@@ -20,6 +20,7 @@ import chalk from 'chalk';
 import { useContainer } from 'class-validator';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
+import createDependencyGraph from 'graph';
 import helmet from 'helmet';
 import { LoggerErrorInterceptor } from 'nestjs-pino';
 
@@ -32,11 +33,11 @@ async function bootstrap() {
     snapshot: true,
   });
 
-  const logger = new Logger('Bootstrap');
-
-  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+  createDependencyGraph(app);
 
   AppUtils.killAppWithGrace(app);
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+  const logger = new Logger('Bootstrap');
 
   const configService = app.select(AppModule).get(ApiConfigService);
   const isDevelopment = configService.isDevelopment;
@@ -48,8 +49,10 @@ async function bootstrap() {
   app.use(cookieParser());
   app.enable('trust proxy');
   app.set('etag', 'strong');
-  app.use(bodyParser.json({ limit: '10mb' }));
-  app.use(bodyParser.urlencoded({ limit: '10mb' }));
+  app.use(
+    bodyParser.json({ limit: '10mb' }),
+    bodyParser.urlencoded({ limit: '10mb', extended: true }),
+  );
   app.use(
     helmet({
       contentSecurityPolicy: false,

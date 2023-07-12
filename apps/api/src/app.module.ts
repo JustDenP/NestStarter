@@ -5,6 +5,7 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { NestHttpModule } from '@modules/@lib/http.module';
 import { NestPinoModule } from '@modules/@lib/pino';
 import { AuthModule } from '@modules/auth/auth.module';
+import { TokenModule } from '@modules/token/token.module';
 import type { MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
@@ -24,6 +25,7 @@ import { UserModule } from './modules/user/user.module';
     }),
     NestHttpModule,
     HealthCheckerModule,
+    TokenModule,
     AuthModule,
     UserModule,
   ],
