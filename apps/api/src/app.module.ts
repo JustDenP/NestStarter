@@ -3,6 +3,7 @@ import { StaticTimeoutInterceptor } from '@common/interceptors/static-timeout-ha
 import { RealIpMiddleware } from '@common/middlewares/ip.middleware';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { NestHttpModule } from '@modules/@lib/http.module';
+import { NestJwtModule } from '@modules/@lib/jwt.module';
 import { NestPinoModule } from '@modules/@lib/pino';
 import { AuthModule } from '@modules/auth/auth.module';
 import { TokenModule } from '@modules/token/token.module';
@@ -25,6 +26,7 @@ import { UserModule } from './modules/user/user.module';
     }),
     NestHttpModule,
     HealthCheckerModule,
+    NestJwtModule,
     TokenModule,
     AuthModule,
     UserModule,

@@ -1,16 +1,15 @@
 import { User } from '@entities';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
-import { UserModule } from '@modules/user/user.module';
 import { Module } from '@nestjs/common';
-import { JwtModule, JwtService } from '@nestjs/jwt';
 import { RefreshToken } from 'entities/refresh-token.entity';
 
+import { TokenRepository } from './token.repository';
 import { TokenService } from './token.service';
 
 @Module({
-  imports: [MikroOrmModule.forFeature([User, RefreshToken]), JwtModule, UserModule],
+  imports: [MikroOrmModule.forFeature([User, RefreshToken])],
   controllers: [],
-  providers: [TokenService, JwtService],
+  providers: [TokenService, TokenRepository],
   exports: [TokenService],
 })
 export class TokenModule {}

@@ -14,7 +14,6 @@ export class TokenService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: BaseRepository<User>,
-    @InjectRepository(RefreshToken)
     private readonly tokenRepository: TokenRepository,
     private readonly jwtService: JwtService,
     private readonly configService: ApiConfigService,
@@ -45,7 +44,7 @@ export class TokenService {
     const options: JwtSignOptions = {
       ...this.BASE_OPTIONS,
       subject: String(user.id),
-      expiresIn: `${this.configService.getNumber('jwt.jwtAccessExpirationTime')}s`,
+      expiresIn: this.configService.getNumber('jwt.jwtAccessExpirationTime'),
     };
 
     return this.jwtService.signAsync(toPayload, options);
@@ -57,12 +56,12 @@ export class TokenService {
    * @returns JWT signed string
    */
   async generateRefreshToken(user: User): Promise<string> {
-    const token = this.tokenRepository.createRefreshToken(user);
+    const token = await this.tokenRepository.createRefreshToken(user);
 
     const options: JwtSignOptions = {
       ...this.BASE_OPTIONS,
       subject: String(user.id),
-      expiresIn: String(token.expiresIn),
+      expiresIn: this.configService.getNumber('jwt.jwtRefreshExpirationTime'),
       jwtid: String(token.id),
     };
 
@@ -76,14 +75,14 @@ export class TokenService {
    * @returns An object with a user and a token.
    */
   async resolveRefreshToken(encoded: string): Promise<{ user: User; token: RefreshToken }> {
-    const decoded = this.decodeRefreshToken(encoded);
+    const decoded = await this.decodeRefreshToken(encoded);
     const token = await this.getStoredTokenFromRefreshTokenPayload(decoded);
 
-    if (!token) new UnauthorizedException(this.msgs.notFound);
-    if (token.isRevoked) new UnauthorizedException(this.msgs.revoked);
+    if (!token) throw new UnauthorizedException(this.msgs.notFound);
+    if (token.isRevoked) throw new UnauthorizedException(this.msgs.revoked);
 
-    const user = await this.getUserFromRefreshTokenPayload(token);
-    if (!user) new UnauthorizedException(this.msgs.malformed);
+    const user = await this.getUserFromRefreshTokenPayload(decoded);
+    if (!user) throw new UnauthorizedException(this.msgs.malformed);
 
     return { user, token };
   }
@@ -123,7 +122,6 @@ export class TokenService {
    */
   async getStoredTokenFromRefreshTokenPayload(payload: JwtPayload): Promise<RefreshToken> {
     const tokenId = payload.jti;
-
     if (!tokenId) throw new UnauthorizedException(this.msgs.malformed);
 
     return this.tokenRepository.findTokenById(Number(tokenId));
@@ -135,12 +133,12 @@ export class TokenService {
    * @returns User
    */
   async getUserFromRefreshTokenPayload(payload: JwtPayload): Promise<User> {
-    const subId = payload.subject;
+    const subId = payload.sub;
 
     if (!subId) throw new UnauthorizedException(this.msgs.malformed);
 
     return this.userRepository.findOne({
-      id: subId,
+      id: Number(subId),
     });
   }
 
@@ -149,7 +147,22 @@ export class TokenService {
    * @param {User} user - The user object that we want to delete the refresh token for.
    * @returns Promise<boolean>.
    */
-  async deleteRefreshTokenForUser(user: User): Promise<boolean> {
-    return this.tokenRepository.deleteTokensForUser(user);
+  async deleteAllRefreshTokens(user: User): Promise<boolean> {
+    return this.tokenRepository.deleteAllTokens(user);
+  }
+
+  /**
+   * It deletes the refresh token from the database and returns the user
+   * @param {User} user - The user object that was returned from the validateUser method.
+   * @param {JwtPayload} payload - The payload of the refresh token.
+   * @returns The user object
+   */
+  async deleteRefreshToken(user: User, payload: JwtPayload): Promise<User> {
+    const tokenId = payload.jti;
+    if (!tokenId) throw new UnauthorizedException(this.msgs.malformed);
+
+    await this.tokenRepository.deleteToken(user, Number(tokenId));
+
+    return user;
   }
 }

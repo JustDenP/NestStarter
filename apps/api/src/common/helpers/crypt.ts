@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import { compare, hashSync } from 'bcrypt';
 
 export const CryptUtils = {
   /**
@@ -6,19 +6,14 @@ export const CryptUtils = {
    * @param {string}
    * @returns {string}
    */
-  generateHash: (string: string): string => bcrypt.hashSync(string, 10),
+  generateHash: (string: string): string => hashSync(string, 8),
 
   /**
-   * validate text with hash
-   * @param {string} plainString
-   * @param {string} hash
+   * validate plain string with encrypted
+   * @param {string} plain
+   * @param {string} encrypted
    * @returns {Promise<boolean>}
    */
-  validateHash: async (plainString: string, hash: string): Promise<boolean> => {
-    if (!plainString || !hash) {
-      return Promise.resolve(false);
-    }
-
-    return bcrypt.compare(plainString, hash);
-  },
+  validateHash: async (plain: string, encrypted: string): Promise<boolean> =>
+    compare(plain, encrypted),
 };

@@ -34,10 +34,10 @@ export class TokenRepository {
    * @param {User} user - The user that the token is being created for.
    * @returns A refresh token
    */
-  createRefreshToken(user: User): RefreshToken {
+  async createRefreshToken(user: User): Promise<RefreshToken> {
     const expiration = new Date();
     const ttlSeconds = this.configService.getNumber('jwt.jwtRefreshExpirationTime'); // seconds
-    expiration.setTime(expiration.getTime() + ttlSeconds);
+    expiration.setTime(expiration.getTime() + ttlSeconds * 1000);
 
     const token = this.refreshTokenRepository.create({
       user: user.id,
@@ -46,15 +46,15 @@ export class TokenRepository {
 
     this.em.persistAndFlush(token);
 
-    return token;
+    return this.refreshTokenRepository.findOne(token);
   }
 
   /**
    * It deletes all refresh tokens for a given user
-   * @param {User} user - User - The user object that we want to delete the tokens for.
+   * @param {User} user - The user object that we want to delete the tokens for.
    * @returns A boolean value.
    */
-  async deleteTokensForUser(user: User): Promise<boolean> {
+  async deleteAllTokens(user: User): Promise<boolean> {
     this.refreshTokenRepository.nativeUpdate({ user }, { isRevoked: true });
 
     return true;
@@ -62,7 +62,7 @@ export class TokenRepository {
 
   /**
    * It deletes a refresh token by setting its `isRevoked` property to `true`
-   * @param {User} user - User - the user object that is currently logged in
+   * @param {User} user - the user object that is currently logged in
    * @param {number} tokenId - The ID of the token to be deleted.
    * @returns A boolean value.
    */
