@@ -1,8 +1,8 @@
-version: '3.8'
+version: '3.9'
 services:
-  postgres-main:
+  db-main:
     image: postgres:14-alpine
-    container_name: postgres-main
+    container_name: db-main
     env_file:
       - env/.env.development
     restart: always
@@ -24,38 +24,13 @@ services:
       - pgdata-main:/var/lib/postgresql/data
       - ./scripts/init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
     networks:
-      - foxy-network
+      - main-network
 
 volumes:
   pgdata-main:
     driver: local
 
 networks:
-  foxy-network:
-    name: foxy-network
+  main-network:
+    name: main-network
     driver: bridge
-
-  # backend-core:
-  #   env_file:
-  #     - env/.env
-  #   container_name: backend-core
-  #   networks:
-  #     - foxy-network
-  #   depends_on:
-  #     - postgres-main
-  #   build:
-  #     context: '.'
-  #     dockerfile: apps/core/Dockerfile
-  #     target: base
-  #   restart: unless-stopped
-  #   ports:
-  #     - ${PORT}:${PORT}
-  #   tty: true
-  #   # volumes:
-  #   # - .:/usr/src/app:cached
-  #   # - /usr/src/app/node_modules
-  #   # - /usr/src/app/apps/core/node_modules
-  #   # - ./apps/core:/usr/src/app/apps/core
-  #   # - /usr/src/app/apps/core/node_modules
-  #   # Run a command against the development stage of the image
-  #   # command: pnpm --filter=core start:prod

@@ -35,8 +35,8 @@ export class TokenRepository {
    * @returns A refresh token
    */
   async createRefreshToken(user: User): Promise<RefreshToken> {
-    const expiration = new Date();
     const ttlSeconds = this.configService.getNumber('jwt.jwtRefreshExpirationTime'); // seconds
+    const expiration = new Date();
     expiration.setTime(expiration.getTime() + ttlSeconds * 1000);
 
     const token = this.refreshTokenRepository.create({

@@ -3,7 +3,7 @@ import slugify from 'slugify';
 export const GeneratorUtils = {
   resourceLink: (resource: string, id: string) => `${process.env['API_URL']}/${resource}/${id}`,
 
-  generateVerificationCode: (): string => Math.floor(1000 + Math.random() * 9000).toString(),
+  generateVerificationCode: (): string => Math.floor(10000 + Math.random() * 90000).toString(),
 
   generatePassword: (): string => {
     const lowercase = 'abcdefghijklmnopqrstuvwxyz';

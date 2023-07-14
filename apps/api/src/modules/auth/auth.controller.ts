@@ -1,8 +1,10 @@
 import { TokenService } from '@modules/token/token.service';
 import { Body, Controller, DefaultValuePipe, ParseBoolPipe, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Otp } from 'entities/otp.entity';
 
 import { AuthService } from './auth.service';
+import { SendOtpDTO } from './dto/otp.dto';
 import { RefreshTokenDTO } from './dto/req-refresh-token.dto';
 import { UserLoginDTO } from './dto/user-login.dto';
 import { AuthenticationResponse } from './types/auth-response';
@@ -27,6 +29,13 @@ export class AuthController {
     const token = await this.tokenService.createAccessTokenFromRefreshToken(body.refreshToken);
 
     return { token };
+  }
+
+  @Post('forgot/send-opt')
+  async forgotPassword(@Body() dto: SendOtpDTO): Promise<string> {
+    const opt = await this.authService.sendOtp(dto);
+
+    return opt.otpCode;
   }
 
   // @Auth()

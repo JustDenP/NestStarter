@@ -1,12 +1,17 @@
 import { CryptUtils } from '@common/helpers/crypt';
+import { GeneratorUtils } from '@common/helpers/generator';
+import { HelperService } from '@common/helpers/helpers';
 import { User } from '@entities';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityRepository } from '@mikro-orm/postgresql';
+import { EntityManager, EntityRepository } from '@mikro-orm/postgresql';
 import { BaseRepository } from '@modules/@lib/base/base.repository';
+import { ApiConfigService } from '@modules/@lib/config/config.service';
 import { TokenService } from '@modules/token/token.service';
+import { UserService } from '@modules/user/user.service';
 import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Otp } from 'entities/otp.entity';
 
+import { SendOtpDTO } from './dto/otp.dto';
 import { UserLoginDTO } from './dto/user-login.dto';
 import { AuthenticationResponse } from './types/auth-response';
 
@@ -15,9 +20,12 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: BaseRepository<User>,
+    private readonly userService: UserService,
     @InjectRepository(Otp)
     private readonly otpRepository: EntityRepository<Otp>,
     private readonly tokenService: TokenService,
+    private readonly configService: ApiConfigService,
+    private readonly em: EntityManager,
   ) {}
 
   readonly msgs = {
@@ -74,6 +82,36 @@ export class AuthService {
       accessToken: accessToken,
       ...(refreshToken ? { refresh_token: refreshToken } : {}),
     };
+  }
+
+  /**
+   * It creates a new OTP, sends it to the user's email, and returns the OTP
+   * @param {SendOtpDTO}
+   * @returns Otp
+   */
+  async sendOtp(reqData: SendOtpDTO): Promise<Otp> {
+    const { email } = reqData;
+    const user = await this.userService._findOne({
+      email,
+    });
+
+    const otpCode = GeneratorUtils.generateVerificationCode();
+    const otp = this.otpRepository.create({
+      user,
+      otpCode,
+      expiresIn: new Date(
+        Date.now() + this.configService.getNumber('jwt.otpExpirationTime') * 60_000,
+      ),
+    });
+
+    this.em.transactional(async (em) => {
+      await em.persistAndFlush(otp);
+      /* TODO Here we shoud send an email */
+
+      if (HelperService.isDev) console.log('=========OTP CODE=========', otp);
+    });
+
+    return otp;
   }
 
   /**
