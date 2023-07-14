@@ -123,7 +123,7 @@ async function bootstrap() {
 
   logger.log(
     `🚦 Accepting request only from: ${chalk.green(
-      `${configService.getString('app.allowedOrigins')}`,
+      `${configService.getString('app.allowedHosts')}`,
     )}`,
   );
 
