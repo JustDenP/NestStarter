@@ -15,7 +15,7 @@ const basePinoOptions = {
     LoggerModule.forRootAsync({
       useFactory: () => ({
         pinoHttp: {
-          timestamp: () => `,"timestamp":"${new Date(Date.now()).toISOString()}"`,
+          timestamp: () => `,"timestamp":"${new Date().toISOString()}"`,
           name: 'api',
           customProps: (_request, _response) => ({
             context: 'HTTP',

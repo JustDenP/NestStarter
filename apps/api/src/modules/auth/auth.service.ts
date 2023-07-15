@@ -142,7 +142,7 @@ export class AuthService {
         new Date(latestOtp.createdAt).getTime() + minutesToResend * 60 * 1000,
       ).getTime();
 
-      const now = HelperService.getTimeInUtc(new Date(Date.now())).getTime();
+      const now = new Date().getTime();
       console.log(now, timeForResend);
       if (now < timeForResend)
         throw new HttpException(

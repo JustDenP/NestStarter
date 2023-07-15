@@ -7,7 +7,6 @@ coverage/
 .eslintcache
 .turbo
 .cache
-cache
 temp
 build
 .next/**

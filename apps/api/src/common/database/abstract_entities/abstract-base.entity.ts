@@ -23,16 +23,16 @@ export abstract class AbstractBaseEntity extends AbstractIdEntity {
    *  The date that the entity was created
    */
   @Property()
-  createdAt? = HelperService.getTimeInUtc(new Date());
+  createdAt? = new Date();
 
   /**
    *  The date that the entity was last updated
    */
   @Property({
-    onUpdate: () => HelperService.getTimeInUtc(new Date()),
+    onUpdate: () => new Date(),
     hidden: true,
   })
-  updatedAt? = HelperService.getTimeInUtc(new Date());
+  updatedAt? = new Date();
 
   /*
   Methods

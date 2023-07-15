@@ -2,6 +2,7 @@ import { AbstractBaseEntity } from '@common/database/abstract_entities/abstract-
 import { PageDTO } from '@common/database/types/page.dto';
 import { PageMetaDTO } from '@common/database/types/page-meta.dto';
 import { QBOPaginationOptions } from '@common/database/types/page-options.dto';
+import { HelperService } from '@common/helpers/helpers';
 import { User } from '@entities';
 import { EntityName } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';

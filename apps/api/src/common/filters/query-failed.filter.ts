@@ -1,6 +1,7 @@
 import { STATUS_CODES } from 'node:http';
 
 import { IErrorResponse } from '@common/@types/interfaces/error-response.interface';
+import { HelperService } from '@common/helpers/helpers';
 import { ServerException, UniqueConstraintViolationException } from '@mikro-orm/core';
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common';
 import type { Request, Response } from 'express';

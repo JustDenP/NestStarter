@@ -2,6 +2,7 @@ import { Roles } from '@common/@types/enums/roles.enum';
 import { AbstractBaseEntity } from '@common/database/abstract_entities/abstract-base.entity';
 import { WithSoftDelete } from '@common/database/filters/with-soft-delete';
 import { CryptUtils } from '@common/helpers/crypt';
+import { HelperService } from '@common/helpers/helpers';
 import {
   BeforeCreate,
   BeforeUpdate,
