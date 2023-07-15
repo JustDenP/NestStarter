@@ -8,11 +8,13 @@ import { NestCacheModule } from '@modules/@lib/cache/cache.module';
 import { NestHttpModule } from '@modules/@lib/http.module';
 import { NestJwtModule } from '@modules/@lib/jwt.module';
 import { NestPinoModule } from '@modules/@lib/pino';
+import { NestTrottleModule } from '@modules/@lib/trottle.module';
 import { AuthModule } from '@modules/auth/auth.module';
 import { TokenModule } from '@modules/token/token.module';
 import type { MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { Module } from '@nestjs/common';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 import { ApiConfigModule } from './modules/@lib/config/config.module';
 import { getOrmConfig } from './modules/@lib/config/configs/database.config';
@@ -28,6 +30,7 @@ import { UserModule } from './modules/user/user.module';
       useFactory: () => getOrmConfig(false),
     }),
     NestHttpModule,
+    NestTrottleModule,
     NestCacheModule,
     HealthCheckerModule,
     NestJwtModule,
@@ -49,6 +52,10 @@ import { UserModule } from './modules/user/user.module';
     {
       provide: APP_INTERCEPTOR,
       useClass: ClearCacheInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })

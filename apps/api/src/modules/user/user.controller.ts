@@ -2,14 +2,14 @@ import { ParamID } from '@common/@types/dtos/one-param-types.dto';
 import { PageDTO } from '@common/database/types/page.dto';
 import { PageOptionsDTO } from '@common/database/types/page-options.dto';
 import { User } from '@entities';
-import { Body, Controller, Delete, Get, Param, Patch, Query } from '@nestjs/common';
-import { ApiNotFoundResponse, ApiTags } from '@nestjs/swagger';
+import { _Controller } from '@modules/auth/decorators/auth-controller.decorator';
+import { Body, Delete, Get, Param, Patch, Query } from '@nestjs/common';
+import { ApiNotFoundResponse } from '@nestjs/swagger';
 
 import { UpdateUserDTO } from './dto/update.dto';
 import { UserService } from './user.service';
 
-@Controller('users')
-@ApiTags('users')
+@_Controller('users', true)
 @ApiNotFoundResponse({ description: 'User(s) not found' })
 export class UserController {
   constructor(private readonly userService: UserService) {}
