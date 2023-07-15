@@ -8,12 +8,6 @@ import { AbstractIdEntity } from './abstract-id.entity';
  */
 export abstract class AbstractBaseEntity extends AbstractIdEntity {
   /**
-   *  To enable or disable the entity
-   */
-  @Property()
-  isActive? = true;
-
-  /**
    *  Marked true when entity is soft deleted
    */
   @Property({ hidden: true })

@@ -1,10 +1,10 @@
-import { AbstractIdEntity } from '@common/database/abstract_entities/abstract-id.entity';
+import { AbstractBaseEntity } from '@common/database/abstract_entities/abstract-base.entity';
 import { BooleanType, Entity, ManyToOne, Property, Rel } from '@mikro-orm/core';
 
 import { User } from './user.entity';
 
 @Entity()
-export class Otp extends AbstractIdEntity {
+export class Otp extends AbstractBaseEntity {
   @Property()
   expiresIn: Date;
 
@@ -20,8 +20,8 @@ export class Otp extends AbstractIdEntity {
   })
   user: Rel<User>;
 
-  @Property({ type: BooleanType, default: false })
-  isUsed = false;
+  @Property({ type: BooleanType, default: true })
+  isActive = true;
 
   constructor(partial?: Partial<Otp>) {
     super();

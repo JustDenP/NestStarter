@@ -1,4 +1,6 @@
 import { IsUniqueConstraint } from '@common/decorators/validators/is-unique.decorator';
+import { HttpCacheInterceptor } from '@common/interceptors/cache.interceptor';
+import { ClearCacheInterceptor } from '@common/interceptors/clear-cache.interceptor';
 import { StaticTimeoutInterceptor } from '@common/interceptors/static-timeout-handle.interceptor';
 import { RealIpMiddleware } from '@common/middlewares/ip.middleware';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
@@ -37,6 +39,14 @@ import { UserModule } from './modules/user/user.module';
     {
       provide: APP_INTERCEPTOR,
       useClass: StaticTimeoutInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: HttpCacheInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClearCacheInterceptor,
     },
   ],
 })

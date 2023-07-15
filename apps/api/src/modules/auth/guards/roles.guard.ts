@@ -1,5 +1,6 @@
-import { User } from '@local/shared-models';
-import { Roles } from '@local/shared-types';
+import { IS_PUBLIC_KEY_META } from '@common/@types/constants/metadata';
+import { Roles } from '@common/@types/enums/roles.enum';
+import { User } from '@entities';
 import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -16,7 +17,7 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const isPublic = this.reflector.get<boolean>('isPublic', context.getHandler());
+    const isPublic = this.reflector.get<boolean>(IS_PUBLIC_KEY_META, context.getHandler());
 
     if (isPublic) {
       return true;

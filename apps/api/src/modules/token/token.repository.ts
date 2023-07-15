@@ -1,6 +1,7 @@
 import { User } from '@entities';
-import { EntityManager, EntityRepository } from '@mikro-orm/core';
+import { EntityManager } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
+import { BaseRepository } from '@modules/@lib/base/base.repository';
 import { ApiConfigService } from '@modules/@lib/config/config.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { RefreshToken } from 'entities/refresh-token.entity';
@@ -10,7 +11,7 @@ export class TokenRepository {
   constructor(
     private readonly em: EntityManager,
     @InjectRepository(RefreshToken)
-    private readonly refreshTokenRepository: EntityRepository<RefreshToken>,
+    private readonly refreshTokenRepository: BaseRepository<RefreshToken>,
     private readonly configService: ApiConfigService,
   ) {}
 
@@ -22,7 +23,7 @@ export class TokenRepository {
   async findTokenById(id: number): Promise<RefreshToken> {
     const token = await this.refreshTokenRepository.findOne({
       id,
-      isRevoked: false,
+      isActive: true,
     });
     if (!token) throw new NotFoundException();
 
@@ -55,19 +56,19 @@ export class TokenRepository {
    * @returns A boolean value.
    */
   async deleteAllTokens(user: User): Promise<boolean> {
-    this.refreshTokenRepository.nativeUpdate({ user }, { isRevoked: true });
+    this.refreshTokenRepository.nativeUpdate({ user }, { isActive: false });
 
     return true;
   }
 
   /**
-   * It deletes a refresh token by setting its `isRevoked` property to `true`
+   * It deletes a refresh token by setting its `isActive` property to `true`
    * @param {User} user - the user object that is currently logged in
    * @param {number} tokenId - The ID of the token to be deleted.
    * @returns A boolean value.
    */
   async deleteToken(user: User, tokenId: number): Promise<boolean> {
-    this.refreshTokenRepository.nativeUpdate({ user, id: tokenId }, { isRevoked: true });
+    this.refreshTokenRepository.nativeUpdate({ user, id: tokenId }, { isActive: false });
 
     return true;
   }

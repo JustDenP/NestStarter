@@ -1,14 +1,23 @@
+import { Roles } from '@common/@types/enums/roles.enum';
 import { CryptUtils } from '@common/helpers/crypt';
 import { GeneratorUtils } from '@common/helpers/generator';
 import { HelperService } from '@common/helpers/helpers';
 import { User } from '@entities';
+import { RequiredEntityData } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityManager, EntityRepository } from '@mikro-orm/postgresql';
+import { EntityManager } from '@mikro-orm/postgresql';
 import { BaseRepository } from '@modules/@lib/base/base.repository';
 import { ApiConfigService } from '@modules/@lib/config/config.service';
 import { TokenService } from '@modules/token/token.service';
+import { RegisterUserDTO } from '@modules/user/dto/sign/user-register.dto';
 import { UserService } from '@modules/user/user.service';
-import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Otp } from 'entities/otp.entity';
 
 import { SendOtpDTO } from './dto/otp.dto';
@@ -19,10 +28,10 @@ import { AuthenticationResponse } from './types/auth-response';
 export class AuthService {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: BaseRepository<User>,
+    public readonly userRepository: BaseRepository<User>,
     private readonly userService: UserService,
     @InjectRepository(Otp)
-    private readonly otpRepository: EntityRepository<Otp>,
+    private readonly otpRepository: BaseRepository<Otp>,
     private readonly tokenService: TokenService,
     private readonly configService: ApiConfigService,
     private readonly em: EntityManager,
@@ -31,6 +40,8 @@ export class AuthService {
   readonly msgs = {
     wrongCredentials: 'Invalid email or password. Please check your credentials and try again.',
     inactiveUser: 'You account has not been activated yet.',
+    waitForNewOtp:
+      "Please wait before requesting another OTP code. We have sent a code to your email. If you don't receive it within a few minutes, please check your spam folder.",
   };
 
   /**
@@ -45,6 +56,7 @@ export class AuthService {
     const user: User = await this.userRepository.findOne(
       {
         email,
+        isDeleted: false,
       },
       {
         fields: ['*'],
@@ -85,6 +97,24 @@ export class AuthService {
   }
 
   /**
+   * Register new user
+   * @param data {@link RegisterUserDTO}
+   * @returns User
+   */
+  public register(data: RegisterUserDTO) {
+    const user: RequiredEntityData<User> = {
+      ...data,
+      roles: [Roles.CLIENT],
+      isActive: true,
+    };
+
+    const newUser = this.userRepository.create(user);
+    this.em.persistAndFlush(newUser);
+
+    return this.userRepository.findOne(newUser);
+  }
+
+  /**
    * It creates a new OTP, sends it to the user's email, and returns the OTP
    * @param {SendOtpDTO}
    * @returns Otp
@@ -95,6 +125,36 @@ export class AuthService {
       email,
     });
 
+    /* Send another OTP only if latest is expired */
+    const latestOtp = await this.otpRepository.findOne(
+      { user },
+      { orderBy: { createdAt: 'DESC' }, populate: false },
+    );
+
+    if (latestOtp) {
+      /**
+       * The time, when user can resend a new otp code
+       * We get time of createdAt and add minutes to it
+       * Then compare Date.now in UTC format with previous value
+       */
+      const minutesToResend = 2;
+      const timeForResend = new Date(
+        new Date(latestOtp.createdAt).getTime() + minutesToResend * 60 * 1000,
+      ).getTime();
+
+      const now = HelperService.getTimeInUtc(new Date(Date.now())).getTime();
+      console.log(now, timeForResend);
+      if (now < timeForResend)
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.TOO_MANY_REQUESTS,
+            message: this.msgs.waitForNewOtp,
+          },
+          429,
+        );
+    }
+
+    /* Generate and send new OTP code */
     const otpCode = GeneratorUtils.generateVerificationCode();
     const otp = this.otpRepository.create({
       user,
@@ -108,7 +168,7 @@ export class AuthService {
       await em.persistAndFlush(otp);
       /* TODO Here we shoud send an email */
 
-      if (HelperService.isDev) console.log('=========OTP CODE=========', otp);
+      if (HelperService.isDev) console.log('=========OTP CODE=========', otp.otpCode);
     });
 
     return otp;

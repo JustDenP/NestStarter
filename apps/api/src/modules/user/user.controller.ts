@@ -2,10 +2,9 @@ import { ParamID } from '@common/@types/dtos/one-param-types.dto';
 import { PageDTO } from '@common/database/types/page.dto';
 import { PageOptionsDTO } from '@common/database/types/page-options.dto';
 import { User } from '@entities';
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Query } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiTags } from '@nestjs/swagger';
 
-import { RegisterUserLocalDTO } from './dto/sign/user-register.dto';
 import { UpdateUserDTO } from './dto/update.dto';
 import { UserService } from './user.service';
 
@@ -27,12 +26,6 @@ export class UserController {
     });
 
     return user.toDTO();
-  }
-
-  @HttpCode(201)
-  @Post('register')
-  async register(@Body() data: RegisterUserLocalDTO) {
-    return this.userService.register(data);
   }
 
   @Patch(':id')

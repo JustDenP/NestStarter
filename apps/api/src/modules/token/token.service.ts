@@ -79,7 +79,7 @@ export class TokenService {
     const token = await this.getStoredTokenFromRefreshTokenPayload(decoded);
 
     if (!token) throw new UnauthorizedException(this.msgs.notFound);
-    if (token.isRevoked) throw new UnauthorizedException(this.msgs.revoked);
+    if (!token.isActive) throw new UnauthorizedException(this.msgs.revoked);
 
     const user = await this.getUserFromRefreshTokenPayload(decoded);
     if (!user) throw new UnauthorizedException(this.msgs.malformed);

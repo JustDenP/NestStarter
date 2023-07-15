@@ -1,3 +1,4 @@
+import { IS_PUBLIC_KEY_META } from '@common/@types/constants/metadata';
 import {
   ExecutionContext,
   ForbiddenException,
@@ -7,18 +8,15 @@ import {
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
-import { Observable } from 'rxjs';
 
 @Injectable()
-export default class JwtAuthenticationGuard extends AuthGuard('jwt') {
+export class JwtAuthGuard extends AuthGuard('jwt') {
   constructor(private readonly reflector: Reflector) {
     super();
   }
 
-  override canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
-    const isPublic = this.reflector.get<boolean>('isPublic', context.getHandler());
+  canActivate(context: ExecutionContext) {
+    const isPublic = this.reflector.get<boolean>(IS_PUBLIC_KEY_META, context.getHandler());
 
     if (isPublic) {
       return true;
@@ -27,7 +25,7 @@ export default class JwtAuthenticationGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  override handleRequest(error: unknown, user: any, info: unknown) {
+  handleRequest(error: any, user: any, info: any) {
     if (error || info || !user) {
       if (info instanceof TokenExpiredError) {
         throw new ForbiddenException('The session has expired. Please login');

@@ -25,11 +25,17 @@ export const GeneratorUtils = {
    * generate random string
    * @param length
    */
-  generateRandomString: (length: number): string =>
-    Math.random()
-      .toString(36)
-      .replace(/[^\dA-Za-z]+/g, '')
-      .slice(0, Math.max(0, length)),
+  generateRandomString: (length: number): string => {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789?=!@#$%&';
+    const charactersLength = characters.length;
+
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+
+    return result;
+  },
 
   /**
    * Generating a slug from a string.

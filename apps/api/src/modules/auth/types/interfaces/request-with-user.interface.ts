@@ -1,4 +1,4 @@
-import { User } from '@local/shared-models';
+import { User } from '@entities';
 import type { Request } from 'express';
 
 interface IRequestWithUser extends Request {

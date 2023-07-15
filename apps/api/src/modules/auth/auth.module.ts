@@ -8,11 +8,12 @@ import { Otp } from 'entities/otp.entity';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [MikroOrmModule.forFeature([User, Otp]), PassportModule, UserModule, TokenModule],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, JwtStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

@@ -1,10 +1,10 @@
-import { AbstractIdEntity } from '@common/database/abstract_entities/abstract-id.entity';
+import { AbstractBaseEntity } from '@common/database/abstract_entities/abstract-base.entity';
 import { BooleanType, Entity, ManyToOne, Property, Rel } from '@mikro-orm/core';
 
 import { User } from './user.entity';
 
 @Entity()
-export class RefreshToken extends AbstractIdEntity {
+export class RefreshToken extends AbstractBaseEntity {
   @Property()
   expiresIn: Date;
 
@@ -13,8 +13,11 @@ export class RefreshToken extends AbstractIdEntity {
   })
   user: Rel<User>;
 
-  @Property({ type: BooleanType, default: false })
-  isRevoked = false;
+  /**
+   *  To enable or disable the entity
+   */
+  @Property({ type: BooleanType, default: true })
+  isActive = true;
 
   constructor(partial?: Partial<RefreshToken>) {
     super();
