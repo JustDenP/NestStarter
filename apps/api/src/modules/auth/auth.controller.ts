@@ -1,4 +1,3 @@
-import { Roles } from '@common/@types/enums/roles.enum';
 import { User } from '@entities';
 import { TokenService } from '@modules/token/token.service';
 import { RegisterUserDTO } from '@modules/user/dto/sign/user-register.dto';
@@ -6,19 +5,20 @@ import {
   Body,
   Controller,
   DefaultValuePipe,
-  Get,
   HttpCode,
   ParseBoolPipe,
   Post,
   Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 import { AuthService } from './auth.service';
 import { Auth } from './decorators/auth.decorator';
 import { AuthUser } from './decorators/auth-user.decorator';
-import { SendOtpDTO } from './dto/otp.dto';
+import { EmailDTO } from './dto/otp.dto';
 import { RefreshTokenDTO } from './dto/req-refresh-token.dto';
+import { ResetPasswordDTO } from './dto/reset-password.dto';
 import { UserLoginDTO } from './dto/user-login.dto';
 import { AuthenticationResponse } from './types/auth-response';
 
@@ -51,17 +51,19 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Send OTP code' })
+  @Throttle(1, 180)
   @Post('forgot/send-opt')
-  async sendOtp(@Body() body: SendOtpDTO): Promise<string> {
+  async sendOtp(@Body() body: EmailDTO): Promise<string> {
     const opt = await this.authService.sendOtp(body);
 
     return opt.otpCode;
   }
 
-  @Auth([Roles.CLIENT])
-  @Get('test')
-  test(@AuthUser() userFromPayload: User) {
-    return userFromPayload;
+  @ApiOperation({ summary: 'Reset password' })
+  @Throttle(5, 180)
+  @Post('forgot/password-reset')
+  resetUserPassword(@Body() body: ResetPasswordDTO): Promise<User> {
+    return this.authService.resetPassword(body);
   }
 
   @ApiOperation({ summary: 'Logout user' })

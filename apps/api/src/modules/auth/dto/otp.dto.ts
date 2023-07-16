@@ -1,8 +1,7 @@
 import { MinMaxLength } from '@common/decorators/validators/min-max-length.decorator';
-import { PickType } from '@nestjs/swagger';
 import { IsEmail, IsString } from 'class-validator';
 
-export class OtpVerifyDTO {
+export class OtpCodeDTO {
   /**
    * Otp sent on email
    * @example 986579
@@ -13,7 +12,9 @@ export class OtpVerifyDTO {
     maxLength: 6,
   })
   otpCode: string;
+}
 
+export class EmailDTO {
   /**
    * Email of user
    * @example someone@something.com
@@ -21,5 +22,3 @@ export class OtpVerifyDTO {
   @IsEmail()
   email: string;
 }
-
-export class SendOtpDTO extends PickType(OtpVerifyDTO, ['email'] as const) {}

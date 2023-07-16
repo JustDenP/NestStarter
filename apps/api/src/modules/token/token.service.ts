@@ -15,7 +15,7 @@ export class TokenService {
     @InjectRepository(User)
     private readonly userRepository: BaseRepository<User>,
     private readonly tokenRepository: TokenRepository,
-    private readonly jwtService: JwtService,
+    public readonly jwtService: JwtService,
     private readonly configService: ApiConfigService,
   ) {}
 
