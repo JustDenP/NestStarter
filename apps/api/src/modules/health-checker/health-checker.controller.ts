@@ -1,5 +1,6 @@
-import { Controller, Get, HttpCode } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { _Controller } from '@modules/auth/decorators/auth-controller.decorator';
+import { Get } from '@nestjs/common';
+import { ApiOperation } from '@nestjs/swagger';
 import type { HealthCheckResult } from '@nestjs/terminus';
 import {
   DiskHealthIndicator,
@@ -12,8 +13,7 @@ import {
 
 import { ServiceHealthIndicator } from './health-indicators/service.indicator';
 
-@Controller('health')
-@ApiTags('health')
+@_Controller('health', false)
 export class HealthCheckerController {
   constructor(
     private http: HttpHealthIndicator,
@@ -25,7 +25,7 @@ export class HealthCheckerController {
   ) {}
 
   @Get()
-  @HttpCode(200)
+  @ApiOperation({ summary: "Get system's health" })
   @HealthCheck()
   async check(): Promise<HealthCheckResult> {
     return this.healthCheckService.check([
