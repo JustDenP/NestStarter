@@ -43,7 +43,7 @@ export class AuthController {
     return { token };
   }
 
-  @Throttle(1, 180)
+  // @Throttle(1, 180)
   @ApiOperation({ summary: 'Send OTP code' })
   @Post('forgot/send-opt')
   async sendOtp(@Body() body: EmailDTO): Promise<string> {

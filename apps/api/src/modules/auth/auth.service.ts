@@ -211,7 +211,7 @@ export class AuthService {
     const isExpired = isAfter(new Date(), new Date(otp.expiresIn));
 
     if (isExpired) {
-      this.otpRepository.nativeUpdate(otp, {
+      await this.otpRepository.nativeUpdate(otp, {
         isActive: false,
       });
 
@@ -221,6 +221,8 @@ export class AuthService {
     this.otpRepository.assign(otp, {
       isActive: false,
     });
+
+    await this.em.flush();
 
     return otp;
   }
@@ -236,7 +238,7 @@ export class AuthService {
     const otp = await this.verifyOtp({ otpCode });
 
     const user = this.userRepository.assign(otp.user, { password });
-    this.em.flush();
+    await this.em.flush();
 
     return user;
   }
