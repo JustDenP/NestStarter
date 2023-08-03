@@ -19,7 +19,6 @@ export const Trim = (): PropertyDecorator =>
  * It converts a string to a boolean
  * @returns A function that returns a PropertyDecorator
  */
-
 export const ToBoolean = (): PropertyDecorator =>
   Transform(
     (parameters) => {

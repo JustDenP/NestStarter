@@ -8,6 +8,7 @@
  * Tests at https://regex101.com/r/m5AT6j/1
  */
 
+import { USERNAME_REGEX } from '@common/@types/constants/regex';
 import type {
   ValidationArguments,
   ValidationOptions,
@@ -18,7 +19,7 @@ import { registerDecorator, ValidatorConstraint } from 'class-validator';
 @ValidatorConstraint({ async: true })
 class IsUsernameConstraint implements ValidatorConstraintInterface {
   async validate(value: string, _argument: ValidationArguments) {
-    return /^[A-Za-z][\w.]{5,12}/.test(value);
+    return USERNAME_REGEX.test(value);
   }
 
   defaultMessage(argument: ValidationArguments) {

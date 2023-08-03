@@ -1,10 +1,9 @@
+import { NodeEnv } from '@common/@types/enums/node-env.enum';
 import Joi from 'joi';
-
-import { NodeEnv } from './node-env.enum';
 
 export const validationSchema = Joi.object({
   /* App */
-  NODE_ENV: Joi.string().valid(NodeEnv.Development, NodeEnv.Production, NodeEnv.Test).required(),
+  NODE_ENV: Joi.string().valid(NodeEnv.Development, NodeEnv.Production).required(),
   SERVER_PORT: Joi.number().required(),
   SERVER_URL: Joi.string().required(),
   API_VERSION: Joi.string().required(),

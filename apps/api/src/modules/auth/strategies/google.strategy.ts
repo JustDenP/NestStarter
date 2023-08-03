@@ -1,5 +1,6 @@
 import { GeneratorUtils } from '@common/helpers/generator';
 import { RegisterUserDTO } from '@modules/user/dto/sign/user-register.dto';
+import { UserService } from '@modules/user/user.service';
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import _ from 'lodash';
@@ -12,13 +13,14 @@ import { AuthService } from '../auth.service';
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google-oauth') {
   constructor(
+    private readonly userService: UserService,
     private readonly configService: ApiConfigService,
     private readonly authService: AuthService,
   ) {
     super({
-      clientID: configService.config.get('oauth.googleOauthClientId'),
-      clientSecret: configService.config.get('oauth.googleOauthClientSecret'),
-      callbackURL: `${configService.config.get('app.url')}auth/callback`,
+      clientID: configService.getString('oauth.googleOauthClientId'),
+      clientSecret: configService.getString('oauth.googleOauthClientSecret'),
+      callbackURL: `${configService.getString('app.url')}auth/callback`,
       // state: true,
       // passReqToCallback: true,
       scope: ['email', 'profile'],
@@ -44,8 +46,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google-oauth') {
     };
 
     /* Here we choose whether to login user or register him  */
-    const existingUser = await this.authService.userRepository.findOne(
-      { email: userData.email, isDeleted: false },
+    const existingUser = await this.userService._findOne(
+      { email: userData.email, deletedAt: null },
       {
         populate: true,
       },

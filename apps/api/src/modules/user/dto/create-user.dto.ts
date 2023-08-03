@@ -1,7 +1,6 @@
-import { Roles } from '@common/@types/enums/roles.enum';
+import { Role } from '@common/@types/enums/roles.enum';
 import { IsPassword } from '@common/decorators/validators/is-password.decorator';
 import { IsUnique } from '@common/decorators/validators/is-unique.decorator';
-import { IsUsername } from '@common/decorators/validators/is-username.decorator';
 import { MinMaxLength } from '@common/decorators/validators/min-max-length.decorator';
 import { User } from '@entities';
 import { IsEmail, IsEnum, IsString } from 'class-validator';
@@ -9,18 +8,10 @@ import { IsEmail, IsEnum, IsString } from 'class-validator';
 export class CreateUserDTO {
   /**
    * Roles of user
-   * @example ["ADMIN"]
+   * @example "admin"
    */
-  @IsEnum(Roles, { each: true })
-  roles: Roles[];
-
-  /**
-   * Username of user
-   * @example abobus123
-   */
-  @IsUsername()
-  @IsUnique(() => User, 'username')
-  username: string;
+  @IsEnum(Role)
+  role: Role;
 
   /**
    * Email of user

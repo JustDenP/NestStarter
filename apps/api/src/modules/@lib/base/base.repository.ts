@@ -2,52 +2,37 @@ import { AbstractBaseEntity } from '@common/database/abstract_entities/abstract-
 import { PageDTO } from '@common/database/types/page.dto';
 import { PageMetaDTO } from '@common/database/types/page-meta.dto';
 import { QBOPaginationOptions } from '@common/database/types/page-options.dto';
-import { HelperService } from '@common/helpers/helpers';
 import { User } from '@entities';
-import { EntityName } from '@mikro-orm/core';
+import { EntityName, FilterQuery } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { NotFoundException } from '@nestjs/common';
 
 export class BaseRepository<T extends AbstractBaseEntity> extends EntityRepository<T> {
+  async _exists(where: FilterQuery<T>): Promise<boolean> {
+    const count = await this.qb().where(where).getCount();
+
+    return count > 0;
+  }
+
   getEntityName(): EntityName<T> {
     return this.entityName;
   }
 
-  /**
-   * Soft Delete the entity
-   * @param {T} entity
-   * @return EntityManager
-   * @memberof BaseRepositroy
-   */
   softDelete(entity: T): T {
     entity.deletedAt = new Date();
-    entity.isDeleted = true;
     this.em.persist(entity);
 
     return entity;
   }
 
-  /**
-   * Returns the deleted entity rather than `this`.
-   * @param {T} entity
-   * @return entity
-   * @memberof BaseRepositroy
-   */
   deleteAndReturn(entity: T): T {
     this.em.remove(entity).flush();
 
     return entity;
   }
 
-  /**
-   * Soft restore the entity
-   * @param {T} entity
-   * @return entity
-   * @memberof BaseRepositroy
-   */
   restore(entity: T): T {
     entity.deletedAt = null;
-    entity.isDeleted = false;
     this.em.persist(entity);
 
     return entity;

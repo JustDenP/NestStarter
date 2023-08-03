@@ -1,10 +1,4 @@
 {
-  "compounds": [
-    {
-      "configurations": ["Next: Node", "Next: Chrome"],
-      "name": "Next: Full"
-    }
-  ],
   "configurations": [
     {
       "autoAttachChildProcesses": true,
@@ -13,23 +7,6 @@
       "restart": true,
       "runtimeArgs": ["run", "start:debug", "--workspace=api", "--inspect-brk"],
       "runtimeExecutable": "npm",
-      "skipFiles": ["<node_internals>/**"],
-      "type": "node"
-    },
-    {
-      "name": "Next: Chrome",
-      "request": "launch",
-      "type": "chrome",
-      "url": "http://localhost:3000",
-      "webRoot": "${workspaceFolder}"
-    },
-    {
-      "args": ["dev"],
-      "autoAttachChildProcesses": true,
-      "console": "integratedTerminal",
-      "name": "Next: Node Debug",
-      "program": "${workspaceFolder}/node_modules/.bin/next",
-      "request": "launch",
       "skipFiles": ["<node_internals>/**"],
       "type": "node"
     }

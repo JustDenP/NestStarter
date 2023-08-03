@@ -1,3 +1,4 @@
+import { Msgs } from '@common/@types/constants/messages';
 import { IS_PUBLIC_KEY_META } from '@common/@types/constants/metadata';
 import {
   ExecutionContext,
@@ -28,11 +29,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   handleRequest(error: any, user: any, info: any) {
     if (error || info || !user) {
       if (info instanceof TokenExpiredError) {
-        throw new ForbiddenException('The session has expired. Please login');
+        throw new ForbiddenException(Msgs.exception.sessionExpired);
       } else if (info instanceof JsonWebTokenError) {
-        throw new UnauthorizedException('Token malformed');
+        throw new UnauthorizedException(Msgs.exception.tokenMalformed);
       } else {
-        throw new UnauthorizedException('Unauthorized');
+        throw new UnauthorizedException(Msgs.exception.unauthorized);
       }
     }
 

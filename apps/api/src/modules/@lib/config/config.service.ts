@@ -1,23 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { NodeEnv } from './node-env.enum';
-
 @Injectable()
 export class ApiConfigService {
-  constructor(public readonly config: ConfigService) {}
-
-  get isDevelopment(): boolean {
-    return this.config.get<string>('app.env') === NodeEnv.Development;
-  }
-
-  get isProduction(): boolean {
-    return this.config.get<string>('app.env') === NodeEnv.Production;
-  }
-
-  get isTest(): boolean {
-    return this.config.get<string>('app.env') === NodeEnv.Test;
-  }
+  constructor(private readonly config: ConfigService) {}
 
   getNumber(key: string): number {
     const value = this.config.get<number>(key);

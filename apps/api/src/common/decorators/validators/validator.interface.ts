@@ -12,8 +12,6 @@ export interface IsStringFieldOptions extends IBaseValidator {
   trim?: boolean;
 }
 
-export type IsEnumFieldOptions = IBaseValidator;
-
 export interface IsNumberFieldOptions extends IBaseValidator {
   min?: number;
   max?: number;
@@ -24,9 +22,3 @@ export interface IsNumberFieldOptions extends IBaseValidator {
 export interface IsMinMaxLengthOptions
   extends Pick<IsStringFieldOptions, 'each'>,
     Pick<IsStringFieldOptions, 'minLength' | 'maxLength'> {}
-
-export interface IFileValidator {
-  fileType?: RegExp | string;
-  fileSize?: number;
-  required?: boolean;
-}

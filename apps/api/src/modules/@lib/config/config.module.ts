@@ -1,12 +1,13 @@
+import { HelperService } from '@common/helpers/helpers';
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { ApiConfigService } from './config.service';
 import { app } from './configs/app.config';
 import { database } from './configs/database.config';
-import { jwt } from './configs/jwt.config';
 import { oauth } from './configs/oauth.config';
 import { swagger } from './configs/swagger.config';
+import { token } from './configs/token.config';
 import { validationSchema } from './validation-schema';
 
 @Global()
@@ -14,9 +15,8 @@ import { validationSchema } from './validation-schema';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [`${process.cwd()}/../../env/${process.env.NODE_ENV}.env`],
-      load: [app, database, jwt, oauth, swagger],
-      cache: process.env.NODE_ENV === 'development' ? false : true,
+      load: [app, database, token, oauth, swagger],
+      cache: !HelperService.isDev(),
       expandVariables: true,
       validationSchema,
       validationOptions: {

@@ -1,6 +1,6 @@
 {
   "*.{ts,tsx}": [
-    "eslint_d '{src,test}/**/*.ts' --cache --fix",
+    "eslint '{src,test}/**/*.ts' --ignore-path ./eslintignore --cache --fix",
     "prettier --cache --write"
   ],
   "*.{json,md,yaml,yml}": [

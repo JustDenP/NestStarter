@@ -1,4 +1,4 @@
-import { Roles } from '@common/@types/enums/roles.enum';
+import { Role } from '@common/@types/enums/roles.enum';
 import { User } from '@entities';
 import { Factory, Faker } from '@mikro-orm/seeder';
 
@@ -10,13 +10,11 @@ export class UserFactory extends Factory<User> {
     const random = faker.datatype.boolean();
 
     return {
-      roles: [random ? Roles.ADMIN : Roles.CLIENT],
-      username: faker.internet.userName(),
+      role: random ? Role.USER : Role.CLIENT,
       email: faker.internet.email(),
       password: random ? '123' : '',
       isVerified: faker.datatype.boolean(),
       isActive: faker.datatype.boolean(),
-      isDeleted: faker.datatype.boolean(),
       firstName: faker.name.firstName(),
       lastName: faker.name.lastName(),
       phone: faker.phone.number('+48 91 ### ## ##'),

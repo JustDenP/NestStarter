@@ -2,6 +2,7 @@ import 'reflect-metadata';
 
 import { HttpExceptionFilter } from '@common/filters/http-exception.filter';
 import { QueryFailedFilter } from '@common/filters/query-failed.filter';
+import { HelperService } from '@common/helpers/helpers';
 import { AppUtils } from '@common/utils/app';
 import { setupSwagger } from '@modules/@lib/config/setup-swagger';
 import { createLogger } from '@modules/@lib/pino';
@@ -33,7 +34,7 @@ process.env.TZ = 'UTC';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, new ExpressAdapter(), {
     logger: await createLogger(),
-    snapshot: true,
+    snapshot: false,
   });
 
   createDependencyGraph(app);
@@ -43,7 +44,7 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
 
   const configService = app.select(AppModule).get(ApiConfigService);
-  const isDevelopment = configService.isDevelopment;
+  const isDev = HelperService.isDev();
 
   /**
    * Security
@@ -65,10 +66,8 @@ async function bootstrap() {
   app.enableCors({
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    // maxAge: 3600,
-    origin: configService.config.get<string>('app.allowedHosts'),
-    allowedHeaders: '*',
-    preflightContinue: false,
+    maxAge: 3600,
+    origin: configService.getString('app.allowedHosts'),
     optionsSuccessStatus: 204,
   });
 
@@ -84,12 +83,12 @@ async function bootstrap() {
       dismissDefaultMessages: false,
       errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       exceptionFactory: (errors) => new UnprocessableEntityException(errors),
-      enableDebugMessages: isDevelopment,
+      enableDebugMessages: isDev,
       validationError: {
         target: false,
         value: false,
       },
-      stopAtFirstError: isDevelopment,
+      stopAtFirstError: isDev,
     }),
   );
 
@@ -121,14 +120,8 @@ async function bootstrap() {
   // Starts listening for shutdown hooks
   app.enableShutdownHooks();
 
-  await app.listen(configService.getNumber('app.port'), isDevelopment ? '0.0.0.0' : '');
-  console.info(`Server running on ${await app.getUrl()}`);
-
-  logger.log(
-    `🚦 Accepting request only from: ${chalk.green(
-      `${configService.getString('app.allowedHosts')}`,
-    )}`,
-  );
+  await app.listen(configService.getNumber('app.port'), isDev ? '0.0.0.0' : '');
+  logger.log(`🔥 Server running on: ${chalk.green(`${await app.getUrl()}`)}`);
 
   return app;
 }

@@ -1,16 +1,36 @@
 import { AbstractBaseEntity } from '@common/database/abstract_entities/abstract-base.entity';
-import { FindOneOptions, FindOptions } from '@mikro-orm/core';
-import { EntityData, FilterQuery } from '@mikro-orm/core/typings';
+import {
+  EntityData,
+  FilterQuery,
+  FindOneOptions,
+  FindOptions,
+  RequiredEntityData,
+} from '@mikro-orm/core';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { NotFoundException } from '@nestjs/common';
 
 import { BaseRepository } from './base.repository';
 
-export abstract class BaseService<Entity extends AbstractBaseEntity> {
+export abstract class BaseService<
+  Entity extends AbstractBaseEntity,
+  CreateDto extends RequiredEntityData<Entity> = RequiredEntityData<Entity>,
+  UpdateDto extends EntityData<Entity> = EntityData<Entity>,
+> {
   protected constructor(
     private readonly repository: BaseRepository<Entity>,
     private readonly EM: EntityManager,
   ) {}
+
+  /**
+   * Create entity
+   * @returns Promise<Entity>
+   */
+  async _create(data: CreateDto): Promise<Entity> {
+    const entity = this.repository.create(data);
+    await this.repository.getEntityManager().persistAndFlush(entity);
+
+    return entity;
+  }
 
   /**
    * Find all by specified options
@@ -52,7 +72,7 @@ export abstract class BaseService<Entity extends AbstractBaseEntity> {
    * @param data: Data to update
    * @returns Updated Entity
    */
-  async _update(id, data: EntityData<Entity>): Promise<Entity> {
+  async _update(id, data: UpdateDto): Promise<Entity> {
     const entity = await this._findOne(id);
     const updatedEntity = this.EM.assign(entity, data);
     this.EM.flush();

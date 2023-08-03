@@ -1,31 +1,27 @@
-import * as fs from 'node:fs';
-
 import { INestApplication, Logger } from '@nestjs/common';
 import process from 'process';
 
+const logger = new Logger('App:Utils');
+
 export const AppUtils = {
   /* A function that is called when the process receives a signal. */
-  async gracefulShutdown(app: INestApplication, code: string): Promise<void> {
-    const logger: Logger = new Logger('Graceful Shutdown');
-
+  gracefulShutdown(app: INestApplication, code: string): void {
     setTimeout(() => process.exit(1), 5000);
-    logger.verbose(`signal received with code ${code}`);
-    logger.log('Closing http server...');
-    await app.close().then(() => {
-      logger.log('Http server closed.');
+    logger.verbose(`Signal received with code ${code} ⚡.`);
+    logger.log('❗Closing http server with grace.');
+    app.close().then(() => {
+      logger.log('✅ Http server closed.');
       process.exit(0);
     });
   },
 
-  killAppWithGrace(app: INestApplication) {
-    process.on('SIGINT', () => {
-      void AppUtils.gracefulShutdown(app, 'SIGINT');
+  killAppWithGrace(app: INestApplication): void {
+    process.on('SIGINT', async () => {
+      AppUtils.gracefulShutdown(app, 'SIGINT');
     });
 
-    // kill -15
-
-    process.on('SIGTERM', () => {
-      void AppUtils.gracefulShutdown(app, 'SIGTERM');
+    process.on('SIGTERM', async () => {
+      AppUtils.gracefulShutdown(app, 'SIGTERM');
     });
   },
 };

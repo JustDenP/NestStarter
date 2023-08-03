@@ -33,7 +33,7 @@ export default function createDependencyGraph(app: NestExpressApplication): void
     )
     .map(({ from, to }) => `${from.module.name}-->${to.module.name}`);
   const graph = `graph TD\n\t${mermaidEdges.join('\n\t')}`;
-  fs.writeFile(`./graph.log`, graph, function (err) {
+  fs.writeFile(`./logs/graph.log`, graph, function (err) {
     if (err) {
       return console.log(err);
     }

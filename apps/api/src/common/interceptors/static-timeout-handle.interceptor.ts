@@ -29,7 +29,7 @@ export class StaticTimeoutInterceptor implements NestInterceptor {
       catchError((error) => {
         if (error.name === 'TimeoutError') {
           console.log(
-            `Timeout of ${timeoutValue ? timeoutValue : timeoutValueDefault} ms exceeded`,
+            `Timeout of ${timeoutValue ? timeoutValue : timeoutValueDefault} ms exceeded.`,
           );
 
           return throwError(() => new HttpException('Request Timeout', HttpStatus.REQUEST_TIMEOUT));
@@ -38,7 +38,7 @@ export class StaticTimeoutInterceptor implements NestInterceptor {
         return throwError(() => error);
       }),
       tap(() => {
-        console.log('Request completed');
+        console.log('Request completed.');
       }),
     );
   }

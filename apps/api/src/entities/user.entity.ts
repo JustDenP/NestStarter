@@ -1,8 +1,7 @@
-import { Roles } from '@common/@types/enums/roles.enum';
+import { Role } from '@common/@types/enums/roles.enum';
 import { AbstractBaseEntity } from '@common/database/abstract_entities/abstract-base.entity';
 import { WithSoftDelete } from '@common/database/filters/with-soft-delete';
 import { CryptUtils } from '@common/helpers/crypt';
-import { HelperService } from '@common/helpers/helpers';
 import {
   BeforeCreate,
   BeforeUpdate,
@@ -15,7 +14,6 @@ import {
   Property,
   Unique,
 } from '@mikro-orm/core';
-import _ from 'lodash';
 
 @Entity({ tableName: 'user' })
 @WithSoftDelete()
@@ -25,13 +23,8 @@ export class User extends AbstractBaseEntity {
     Object.assign(this, data);
   }
 
-  @Enum({ items: () => Roles, array: true, default: [Roles.CLIENT] })
-  roles: Roles[] = [Roles.CLIENT];
-
-  @Unique()
-  @Index()
-  @Property()
-  username: string;
+  @Enum({ items: () => Role, array: false, default: Role.USER })
+  role: Role = Role.USER;
 
   @Unique()
   @Index()
@@ -41,6 +34,19 @@ export class User extends AbstractBaseEntity {
   @Property({ hidden: true, lazy: true })
   password: string;
 
+  @Property()
+  firstName: string;
+
+  @Property()
+  lastName: string;
+
+  @Unique()
+  @Property()
+  phone?: string;
+
+  @Property()
+  picture?: string;
+
   @Property({ type: BooleanType, default: false })
   isVerified = false;
 
@@ -48,10 +54,7 @@ export class User extends AbstractBaseEntity {
   isActive = true;
 
   @Property()
-  firstName: string;
-
-  @Property()
-  lastName: string;
+  lastLogin?: Date | null;
 
   /* Virtual field */
   @Property({ name: 'fullName' })
@@ -61,27 +64,6 @@ export class User extends AbstractBaseEntity {
     }
   }
 
-  @Unique()
-  @Property()
-  phone?: string;
-
-  @Property()
-  picture?: string;
-
-  @Property()
-  lastLogin? = new Date();
-
-  /**
-   * Relationships
-   */
-  // @OneToOne({
-  //   owner: true,
-  //   cascade: [Cascade.PERSIST, Cascade.REMOVE],
-  //   onDelete: 'cascade',
-  //   onUpdateIntegrity: 'cascade',
-  // })
-  // profile: UserProfile;
-
   /**
    * Lifecycle Hooks
    */
@@ -89,7 +71,9 @@ export class User extends AbstractBaseEntity {
   @BeforeUpdate()
   @BeforeUpsert()
   async hashPassword(arguments_: EventArgs<this>) {
-    if (!_.isEmpty(arguments_.changeSet?.payload?.password)) {
+    const payload = arguments_.changeSet?.payload;
+
+    if (payload?.password || payload['password'].length > 0) {
       this.password = CryptUtils.generateHash(this.password);
     }
   }

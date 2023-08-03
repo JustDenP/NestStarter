@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { NodeEnv } from '@modules/@lib/config/node-env.enum';
 import { format, zonedTimeToUtc } from 'date-fns-tz';
 
 export const HelperService = {
@@ -20,9 +19,7 @@ export const HelperService = {
       currentDirectory = join(currentDirectory, '..');
     }
 
-    return process.env.NODE_ENV === NodeEnv.Production
-      ? join(currentDirectory, 'dist')
-      : currentDirectory;
+    return this.isProd() ? join(currentDirectory, 'dist') : currentDirectory;
   },
 
   /* The `getTimeInUtc` function takes a `Date` object or a string representation of a date as input and

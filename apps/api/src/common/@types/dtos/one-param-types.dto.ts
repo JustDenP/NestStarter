@@ -1,13 +1,8 @@
 import { IsNumberString, IsString } from 'class-validator';
 
-class ParamID {
-  @IsNumberString()
-  id!: number;
-}
-
 class ParamNum {
   @IsNumberString()
-  param!: number;
+  id!: number;
 }
 
 class ParamString {
@@ -15,4 +10,4 @@ class ParamString {
   param!: string;
 }
 
-export { ParamID, ParamNum, ParamString };
+export { ParamNum as ParamID, ParamNum, ParamString };

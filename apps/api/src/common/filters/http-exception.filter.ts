@@ -1,5 +1,4 @@
 import { IErrorResponse } from '@common/@types/interfaces/error-response.interface';
-import { HelperService } from '@common/helpers/helpers';
 import type { ArgumentsHost, ExceptionFilter, ValidationError } from '@nestjs/common';
 import { Catch, HttpException, HttpStatus, UnprocessableEntityException } from '@nestjs/common';
 import type { Request, Response } from 'express';

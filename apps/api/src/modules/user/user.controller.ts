@@ -1,5 +1,5 @@
 import { ParamID } from '@common/@types/dtos/one-param-types.dto';
-import { Roles } from '@common/@types/enums/roles.enum';
+import { Role } from '@common/@types/enums/roles.enum';
 import { PageDTO } from '@common/database/types/page.dto';
 import { PageOptionsDTO } from '@common/database/types/page-options.dto';
 import { User } from '@entities';
@@ -11,8 +11,8 @@ import { ApiNotFoundResponse, ApiOperation } from '@nestjs/swagger';
 import { UpdateUserDTO } from './dto/update.dto';
 import { UserService } from './user.service';
 
-@_Controller('users', true)
-@ApiNotFoundResponse({ description: 'User(s) not found' })
+@_Controller('users', false)
+@ApiNotFoundResponse({ description: 'User(s) not found.' })
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -29,7 +29,7 @@ export class UserController {
       populate: true,
     });
 
-    return user.toDTO();
+    return user;
   }
 
   @ApiOperation({ summary: 'Update user' })
@@ -37,7 +37,7 @@ export class UserController {
   async update(@Param() params: ParamID, @Body() inputData: UpdateUserDTO) {
     const user = await this.userService._update(params.id, inputData);
 
-    return user.toDTO();
+    return user;
   }
 
   @ApiOperation({ summary: 'Soft delete user' })
@@ -51,15 +51,15 @@ export class UserController {
   async restore(@Param() params: ParamID) {
     const user = await this.userService._restore(params.id);
 
-    return user.toDTO();
+    return user;
   }
 
-  @Auth([Roles.ADMIN])
+  @Auth([Role.ADMIN])
   @ApiOperation({ summary: 'Permanently delete user' })
   @Delete('/permanent/:id')
   async delete(@Param() params: ParamID) {
     const user = await this.userService._delete(params.id);
 
-    return user.toDTO();
+    return user;
   }
 }

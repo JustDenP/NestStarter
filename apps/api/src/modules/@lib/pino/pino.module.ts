@@ -1,3 +1,4 @@
+import { HelperService } from '@common/helpers/helpers';
 import { Module, RequestMethod } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 
@@ -17,6 +18,7 @@ const basePinoOptions = {
         pinoHttp: {
           timestamp: () => `,"timestamp":"${new Date().toISOString()}"`,
           name: 'api',
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           customProps: (_request, _response) => ({
             context: 'HTTP',
           }),
@@ -31,13 +33,13 @@ const basePinoOptions = {
             paths: redactFields,
             censor: '**GDPR COMPLIANT**',
           },
-          transport: process.env.NODE_ENV.startsWith('prod')
+          transport: HelperService.isProd()
             ? {
                 target: 'pino/file',
                 level: 'error', // log only errors to file
                 options: {
                   ...basePinoOptions,
-                  destination: 'app.log',
+                  destination: './logs/app.log',
                   mkdir: true,
                   sync: false,
                 },
@@ -57,7 +59,7 @@ const basePinoOptions = {
                     level: 'error', // log only errors to file
                     options: {
                       ...basePinoOptions,
-                      destination: 'app.log',
+                      destination: './logs/app.log',
                       mkdir: true,
                       sync: false,
                     },

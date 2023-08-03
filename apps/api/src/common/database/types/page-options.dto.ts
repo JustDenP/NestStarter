@@ -1,7 +1,7 @@
 import { QueryOrder } from '@common/@types/enums/order.enum';
 import { ToBoolean } from '@common/decorators/transformers/transform.decorators';
 import { MinMaxLength } from '@common/decorators/validators/min-max-length.decorator';
-import { Dictionary } from '@mikro-orm/core/typings';
+import { Dictionary } from '@mikro-orm/core';
 import { QueryBuilder } from '@mikro-orm/postgresql';
 import { Type } from 'class-transformer';
 import {

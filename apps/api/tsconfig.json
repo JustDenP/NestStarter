@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": "src",
-    "lib": ["ES2021", "dom"],
+    "lib": ["ES2021"],
     "outDir": "dist",
     "paths": {
       "@common/*": ["./common/*"],

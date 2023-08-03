@@ -1,21 +1,16 @@
 {
-  "extends": [
-    "../../.eslintrc.json"
-  ],
-  "overrides": [],
   "env": {
     "browser": false,
     "es6": true,
     "jest": true,
     "node": true
   },
-  "ignorePatterns": [
-    "migrations",
-    "src/generated"
-  ],
+  "extends": ["../../.eslintrc.json"],
+  "ignorePatterns": ["migrations", "src/generated"],
+  "overrides": [],
   "parserOptions": {
     "createDefaultProgram": false,
-    "project": "tsconfig.json",
+    "project": "./tsconfig.json",
     "sourceType": "module",
     "tsconfigRootDir": "./"
   },
