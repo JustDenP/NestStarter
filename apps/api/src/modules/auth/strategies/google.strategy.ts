@@ -1,6 +1,8 @@
 import { GeneratorUtils } from '@common/helpers/generator';
+import { User } from '@entities';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { BaseRepository } from '@modules/@lib/base/base.repository';
 import { RegisterUserDTO } from '@modules/user/dto/sign/user-register.dto';
-import { UserService } from '@modules/user/user.service';
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import _ from 'lodash';
@@ -13,7 +15,8 @@ import { AuthService } from '../auth.service';
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google-oauth') {
   constructor(
-    private readonly userService: UserService,
+    @InjectRepository(User)
+    private readonly userRepository: BaseRepository<User>,
     private readonly configService: ApiConfigService,
     private readonly authService: AuthService,
   ) {
@@ -46,7 +49,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google-oauth') {
     };
 
     /* Here we choose whether to login user or register him  */
-    const existingUser = await this.userService._findOne(
+    const existingUser = await this.userRepository.findOne(
       { email: userData.email, deletedAt: null },
       {
         populate: true,

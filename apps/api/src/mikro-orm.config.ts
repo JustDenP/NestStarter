@@ -1,9 +1,9 @@
 import type { Options } from '@mikro-orm/core';
-import { getOrmConfig } from '@modules/@lib/config/configs/database.config';
+import mikroConfig from '@modules/@lib/config/configs/database.config';
 
 /**
  * `MikroOrmConfig`
  */
-const config: Options = getOrmConfig(true);
+const config: Options = mikroConfig;
 
 export default config;

@@ -6,26 +6,21 @@ import {
   FindOptions,
   RequiredEntityData,
 } from '@mikro-orm/core';
-import { EntityManager } from '@mikro-orm/postgresql';
 import { NotFoundException } from '@nestjs/common';
 
 import { BaseRepository } from './base.repository';
 
 export abstract class BaseService<
-  Entity extends AbstractBaseEntity,
-  CreateDto extends RequiredEntityData<Entity> = RequiredEntityData<Entity>,
-  UpdateDto extends EntityData<Entity> = EntityData<Entity>,
+  T extends AbstractBaseEntity,
+  CreateDto extends RequiredEntityData<T> = RequiredEntityData<T>,
+  UpdateDto extends EntityData<T> = EntityData<T>,
 > {
-  protected constructor(
-    private readonly repository: BaseRepository<Entity>,
-    private readonly EM: EntityManager,
-  ) {}
+  protected constructor(private readonly repository: BaseRepository<T>) {}
 
   /**
    * Create entity
-   * @returns Promise<Entity>
    */
-  async _create(data: CreateDto): Promise<Entity> {
+  async create(data: CreateDto): Promise<T> {
     const entity = this.repository.create(data);
     await this.repository.getEntityManager().persistAndFlush(entity);
 
@@ -34,32 +29,21 @@ export abstract class BaseService<
 
   /**
    * Find all by specified options
-   * @param options
-   * @returns Entity[] | EntityDTO<Entity>[]>
    */
-  async _find<P extends string = never>(
-    where: FilterQuery<Entity>,
-    options?: FindOptions<Entity, P>,
-  ) {
+  async find<P extends string = never>(where: FilterQuery<T>, options?: FindOptions<T, P>) {
     const entities = await this.repository.find<P>(where, options);
-
-    if (entities && entities.length) {
-      return entities.map((each) => each.toDTO());
-    }
+    if (entities && entities.length) return entities.map((each) => each.toDTO());
 
     return [];
   }
 
   /**
    * Find one by specified options
-   * @param where
-   * @param options
-   * @returns Entity
    */
-  async _findOne<P extends string = never>(
-    where: FilterQuery<Entity>,
-    options?: FindOneOptions<Entity, P>,
-  ): Promise<Entity> {
+  async findOne<P extends string = never>(
+    where: FilterQuery<T>,
+    options?: FindOneOptions<T, P>,
+  ): Promise<T> | null {
     const entity = await this.repository.findOne<P>(where, options);
     if (!entity) throw new NotFoundException();
 
@@ -67,51 +51,52 @@ export abstract class BaseService<
   }
 
   /**
-   * Update entity with provided data
-   * @param id: number
-   * @param data: Data to update
-   * @returns Updated Entity
+   * Find by ID
    */
-  async _update(id, data: UpdateDto): Promise<Entity> {
-    const entity = await this._findOne(id);
-    const updatedEntity = this.EM.assign(entity, data);
-    this.EM.flush();
+  async findById(id: number, options?: FindOneOptions<T>): Promise<T> {
+    const entity = await this.repository.findById(id, options);
+
+    return entity;
+  }
+
+  /**
+   * Update entity with provided data
+   */
+  async update(id: number, data: UpdateDto): Promise<T> {
+    const entity = await this.repository.findById(id);
+    const updatedEntity = this.repository.assign(entity, data);
+    await this.repository.getEntityManager().flush();
 
     return updatedEntity;
   }
 
   /**
-   * Soft delete the entity
-   * @param id: number
-   * @returns Soft deleted entity
+   * Soft delete entity
    */
-  async _softDelete(id): Promise<void> {
-    const entity = await this._findOne(id);
-    this.repository.softDelete(entity);
-    this.EM.flush();
-  }
-
-  /**
-   * Delete the entity permanently
-   * @param id: number
-   * @returns Permanently deleted entity
-   */
-  async _delete(id): Promise<Entity> {
-    const entity = await this._findOne(id, {
-      populate: true,
-    });
-    const deleted = this.repository.deleteAndReturn(entity);
+  async softDelete(id: number): Promise<T> {
+    const entity = await this.repository.findById(id);
+    const deleted = this.repository.softDelete(entity);
+    await this.repository.getEntityManager().flush();
 
     return deleted;
   }
 
   /**
-   * Restore the entity
-   * @param id: number
-   * @returns Restored entity
+   * Delete entity permanently
    */
-  async _restore(id): Promise<Entity> {
-    const entity = await this._findOne(id, {
+  async permanentDelete(id: number): Promise<T> {
+    const entity = await this.repository.findById(id);
+    const deleted = this.repository.permanentDelete(entity);
+    await this.repository.getEntityManager().flush();
+
+    return deleted;
+  }
+
+  /**
+   * Restore entity
+   */
+  async restore(id: number): Promise<T> {
+    const entity = await this.repository.findById(id, {
       filters: {
         softDelete: {
           getOnlyDeleted: true,
@@ -119,7 +104,7 @@ export abstract class BaseService<
       },
     });
     const restored = this.repository.restore(entity);
-    this.EM.flush();
+    await this.repository.getEntityManager().flush();
 
     return restored;
   }

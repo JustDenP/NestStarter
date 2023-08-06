@@ -1,21 +1,41 @@
 import { AbstractBaseEntity } from '@common/database/abstract_entities/abstract-base.entity';
-import { PageDTO } from '@common/database/types/page.dto';
-import { PageMetaDTO } from '@common/database/types/page-meta.dto';
-import { QBOPaginationOptions } from '@common/database/types/page-options.dto';
+import { PageDTO, PageMetaDTO, QBOPaginationOptions } from '@common/database/types/page.dto';
+import { getSkip } from '@common/database/types/page-options.dto';
+import { HelperService } from '@common/helpers/helpers';
+import { StringUtils } from '@common/helpers/types/string';
 import { User } from '@entities';
-import { EntityName, FilterQuery } from '@mikro-orm/core';
+import { EntityData, EntityName, FilterQuery, FindOneOptions } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { NotFoundException } from '@nestjs/common';
 
 export class BaseRepository<T extends AbstractBaseEntity> extends EntityRepository<T> {
-  async _exists(where: FilterQuery<T>): Promise<boolean> {
+  /**
+   * Utils
+   */
+  getEntityName(): EntityName<T> {
+    return this.entityName;
+  }
+
+  async exists(where: FilterQuery<T>): Promise<boolean> {
     const count = await this.qb().where(where).getCount();
 
     return count > 0;
   }
 
-  getEntityName(): EntityName<T> {
-    return this.entityName;
+  /**
+   * Find by ID
+   */
+  async findById(id: number, options?: FindOneOptions<T>): Promise<T> {
+    const entity = await this.findOne({ id } as any, options);
+
+    return entity;
+  }
+
+  async update(entity: T, data: EntityData<T>): Promise<T> {
+    const updatedEntity = this.assign(entity, data);
+    this.em.persist(updatedEntity);
+
+    return updatedEntity;
   }
 
   softDelete(entity: T): T {
@@ -25,8 +45,9 @@ export class BaseRepository<T extends AbstractBaseEntity> extends EntityReposito
     return entity;
   }
 
-  deleteAndReturn(entity: T): T {
-    this.em.remove(entity).flush();
+  permanentDelete(entity: T): T {
+    this.em.remove(entity);
+    this.em.persist(entity);
 
     return entity;
   }
@@ -40,7 +61,7 @@ export class BaseRepository<T extends AbstractBaseEntity> extends EntityReposito
 
   /**
    * Offset pagination
-   * @memberof BaseRepositroy
+   * @example http://localhost:3333/users/?page=1&take=30&order=ASC&sort=createdAt&from=2023-07-22&to=2023-07-26&deleted=false&where=id&is=1
    */
   async paginate(
     dto: QBOPaginationOptions<T>,
@@ -48,18 +69,28 @@ export class BaseRepository<T extends AbstractBaseEntity> extends EntityReposito
   ): Promise<PageDTO<T>> {
     try {
       const { qb, pageOptionsDTO } = dto;
-      const { take, skip, order, sort, withDeleted, from, to } = pageOptionsDTO;
+      const { take, page, sort, order, where, is, from, to, deleted } = pageOptionsDTO;
+      const skip = getSkip(page, take);
 
       qb.where({
-        isDeleted: false,
-      }).orWhere({
-        isDeleted: withDeleted,
+        deletedAt: deleted
+          ? {
+              $ne: null,
+            }
+          : null,
       });
+
+      if (where && is) {
+        const isBoolOrNull = is === 'true' || is === 'false' || is === 'null';
+        qb.andWhere({
+          [where]: isBoolOrNull ? StringUtils.stringToBoolean(is) : StringUtils.stringOrNumber(is),
+        });
+      }
 
       if (from) {
         qb.andWhere({
           createdAt: {
-            $gte: from,
+            $gte: new Date(from),
           },
         });
       }
@@ -67,27 +98,27 @@ export class BaseRepository<T extends AbstractBaseEntity> extends EntityReposito
       if (to) {
         qb.andWhere({
           createdAt: {
-            $lte: to,
+            $lte: new Date(to),
           },
         });
       }
 
-      if (options?.relations) {
-        for (const relation of options.relations) {
-          qb.leftJoinAndSelect(
-            `${this.getEntityName()}.${relation}`,
-            `${this.getEntityName()}_${relation}`,
-          );
-        }
-      }
+      // if (options?.relations) {
+      //   for (const relation of options.relations) {
+      //     qb.leftJoinAndSelect(
+      //       `${this.getEntityName()}.${relation}`,
+      //       `${this.getEntityName()}_${relation}`,
+      //     );
+      //   }
+      // }
 
       qb.select(options?.fields ? [...options.fields, 'id'] : '*').orderBy({
         [sort]: order.toLowerCase(),
       });
       qb.limit(take).offset(skip);
 
+      /* Prepare and return */
       const [results, total] = await qb.getResultAndCount();
-
       results.map((each) => {
         if (each instanceof User && each['password']) {
           delete each['password'];
@@ -97,15 +128,16 @@ export class BaseRepository<T extends AbstractBaseEntity> extends EntityReposito
       });
 
       const pageMetaDTO = new PageMetaDTO({ pageOptionsDTO, total });
-
       const lastPage = pageMetaDTO.lastPage;
 
-      if (lastPage > pageMetaDTO.page) {
+      if (lastPage >= pageMetaDTO.page) {
         return new PageDTO(results, pageMetaDTO);
       }
 
       throw new NotFoundException();
     } catch (error) {
+      if (HelperService.isDev()) throw error;
+
       throw new NotFoundException();
     }
   }

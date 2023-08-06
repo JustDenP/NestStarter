@@ -2,12 +2,17 @@ import { HelperService } from '@common/helpers/helpers';
 import type { Options } from '@mikro-orm/core';
 import { LoadStrategy, UnderscoreNamingStrategy } from '@mikro-orm/core';
 import { logger } from '@mikro-orm/nestjs';
+import { defineConfig } from '@mikro-orm/postgresql';
 import { TsMorphMetadataProvider } from '@mikro-orm/reflection';
 import { SqlHighlighter } from '@mikro-orm/sql-highlighter';
 import { BaseRepository } from '@modules/@lib/base/base.repository';
 import { Logger, NotFoundException } from '@nestjs/common';
 import { registerAs } from '@nestjs/config';
 import * as dotenv from 'dotenv';
+
+dotenv.config({
+  path: `${process.cwd()}/../../.env`,
+});
 
 export const database = registerAs('database', () => ({
   host: process.env.DB_HOST,
@@ -18,58 +23,54 @@ export const database = registerAs('database', () => ({
   dbUrl: process.env.DATABASE_URL,
 }));
 
-export const getOrmConfig = (isCLI: boolean): Options => {
-  dotenv.config({
-    path: `${process.cwd()}/../../.env`,
-  });
+const loggerType = new Logger('MikroORM');
 
-  let loggerType;
-
-  if (isCLI) {
-    loggerType = new Logger('MikroORM - CLI');
-  } else {
-    loggerType = new Logger('MikroORM');
-  }
-
-  return {
-    type: 'postgresql',
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT),
-    password: process.env.DB_PASSWORD,
-    user: process.env.DB_USER,
-    dbName: process.env.DB_DATABASE,
-    entities: ['dist/entities/*.entity.js'],
-    entitiesTs: ['src/entities/*.entity.ts'],
-    loadStrategy: LoadStrategy.JOINED,
-    highlighter: HelperService.isProd() ? new SqlHighlighter() : undefined,
-    debug: true,
-    logger: logger.log.bind(loggerType),
-    metadataProvider: TsMorphMetadataProvider,
-    namingStrategy: UnderscoreNamingStrategy,
-    entityRepository: BaseRepository,
-    forceUtcTimezone: true,
-    allowGlobalContext: true,
-    pool: { min: 2, max: 10 },
-    findOneOrFailHandler: (entityName: string, key: any) =>
-      new NotFoundException(`${entityName} not found for ${key}.`),
-    seeder: {
-      path: 'dist/common/database/seeders/',
-      pathTs: 'src/common/database/seeders/',
-      defaultSeeder: 'DatabaseSeeder',
-      glob: '!(*.d).{js,ts}',
-    },
+export const baseOptions = {
+  entities: ['dist/entities/*.entity.js'],
+  entitiesTs: ['src/entities/*.entity.ts'],
+  findOneOrFailHandler: (entityName: string, key: any) =>
+    new NotFoundException(`${entityName} not found for ${key}.`),
+  loadStrategy: LoadStrategy.JOINED,
+  highlighter: HelperService.isProd() ? new SqlHighlighter() : undefined,
+  debug: true,
+  logger: logger.log.bind(loggerType),
+  metadataProvider: TsMorphMetadataProvider,
+  namingStrategy: UnderscoreNamingStrategy,
+  entityRepository: BaseRepository,
+  forceUtcTimezone: true,
+  allowGlobalContext: true,
+  pool: { min: 2, max: 10 },
+  seeder: {
+    path: 'dist/common/database/seeders/',
+    pathTs: 'src/common/database/seeders/',
+    defaultSeeder: 'DatabaseSeeder',
+    glob: '!(*.d).{js,ts}',
+  },
+  migrations: {
     migrations: {
-      tableName: 'migrations',
-      path: 'dist/migrations',
-      pathTs: './migrations',
-      glob: '!(*.d).{js,ts}',
-      transactional: true,
-      disableForeignKeys: false, // wrap statements with `set foreign_key_checks = 0` or equivalent
-      allOrNothing: true, // wrap all migrations in master transaction
-      dropTables: true, // allow to disable table dropping
-      safe: false, // allow to disable table and column dropping
-      snapshot: true, // save snapshot when creating new migrations
-      emit: 'ts',
+      fileName: (timestamp: string, name?: string) => {
+        if (!name) return `Migration${timestamp}`;
+
+        return `Migration${timestamp}_${name}`;
+      },
     },
-  };
+    tableName: 'migrations', // name of database table with log of executed transactions
+    path: './dist/migrations', // path to the folder with migrations
+    pathTs: './migrations', // path to the folder with TS migrations
+    glob: '!(*.d).{js,ts}', // how to match migration files (all .js and .ts files, but not .d.ts)
+    transactional: true, // wrap each migration in a transaction
+    allOrNothing: true, // wrap all migrations in master transaction
+    snapshot: true, // save snapshot when creating new migrations
+  },
 };
+
+const mikroConfig: Options = defineConfig({
+  ...baseOptions,
+  dbName: process.env.DB_DATABASE,
+  password: process.env.DB_PASSWORD,
+  port: Number(process.env.DB_PORT),
+  user: process.env.DB_USERNAME,
+  host: process.env.DB_HOST,
+});
+
+export default mikroConfig;

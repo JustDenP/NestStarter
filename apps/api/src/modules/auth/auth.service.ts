@@ -3,10 +3,11 @@ import { Role } from '@common/@types/enums/roles.enum';
 import { CryptUtils } from '@common/helpers/crypt';
 import { User } from '@entities';
 import { RequiredEntityData } from '@mikro-orm/core';
+import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityManager } from '@mikro-orm/postgresql';
+import { BaseRepository } from '@modules/@lib/base/base.repository';
 import { TokenService } from '@modules/token/token.service';
 import { RegisterUserDTO } from '@modules/user/dto/sign/user-register.dto';
-import { UserService } from '@modules/user/user.service';
 import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { UserLoginDTO } from './dto/user-login.dto';
@@ -15,13 +16,14 @@ import { AuthenticationResponse } from './types/auth-response';
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UserService,
+    @InjectRepository(User)
+    private readonly userRepository: BaseRepository<User>,
     private readonly tokenService: TokenService,
     private readonly em: EntityManager,
   ) {}
 
   async validateUser(isPasswordLogin: boolean, email: string, password?: string): Promise<User> {
-    const user: User = await this.userService._findOne(
+    const user: User = await this.userRepository.findOne(
       {
         email,
         deletedAt: null,
@@ -44,7 +46,7 @@ export class AuthService {
   async login(credentials: UserLoginDTO, isPasswordLogin = true): Promise<AuthenticationResponse> {
     const user = await this.validateUser(isPasswordLogin, credentials.email, credentials.password);
 
-    await this.userService._update({ id: user.id }, { lastLogin: new Date() });
+    await this.userRepository.update(user, { lastLogin: new Date() });
     const accessToken = await this.tokenService.generateAccessToken(user);
     const refreshToken = await this.tokenService.generateRefreshToken(user);
 
@@ -64,10 +66,10 @@ export class AuthService {
       isActive: true,
     };
 
-    const newUser = await this.userService._create(user);
-    this.em.persistAndFlush(newUser);
+    const newUser = this.userRepository.create(user);
+    await this.em.persistAndFlush(newUser);
 
-    return this.userService._findOne(newUser);
+    return this.userRepository.findById(newUser.id);
   }
 
   async logoutFromAll(user: User): Promise<boolean> {

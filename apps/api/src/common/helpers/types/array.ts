@@ -3,12 +3,8 @@ import { IMinMaxRangeInterval } from '@common/@types/interfaces/common.interface
 export const ArrayUtils = {
   /**
    * Runs async operations in a forEach loop
-   *
-   * @function
-   *
    * @param {T[]} arr
    * @param {Function} fn
-   *
    * @returns {any}
    */
   asyncForEach: async <T, K = any>(
@@ -23,7 +19,6 @@ export const ArrayUtils = {
    * @param {number} minValue
    * @param {number} maxValue
    * @param {number} step
-   *
    * @returns {IMinMaxRangeInterval[]}
    */
   createMinMaxRangeInterval: (

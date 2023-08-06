@@ -1,8 +1,5 @@
 import { QueryOrder } from '@common/@types/enums/order.enum';
 import { ToBoolean } from '@common/decorators/transformers/transform.decorators';
-import { MinMaxLength } from '@common/decorators/validators/min-max-length.decorator';
-import { Dictionary } from '@mikro-orm/core';
-import { QueryBuilder } from '@mikro-orm/postgresql';
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
@@ -17,76 +14,69 @@ import {
 
 class DeepPageOptionsDTO {
   /**
-   * From date filter
+   * Where key field
+   * @example: email | id
    */
+  @IsOptional()
+  @IsString()
+  @MaxLength(30)
+  where?: string;
+
+  /**
+   * Where value field
+   * @example: email | id
+   */
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  is?: string;
+
+  /* From date filter */
   @IsOptional()
   @IsDateString()
   from?: string;
 
-  /**
-   * From date filter
-   */
+  /* End date filter */
   @IsOptional()
   @IsDateString()
   to?: string;
 
   /**
-   *  The search query
-   */
-  @IsOptional()
-  @IsString()
-  @MinMaxLength({ minLength: 1, maxLength: 100 })
-  search?: string;
-
-  /** The `withDeleted` property is a boolean flag that
-   * indicates whether to include deleted items in the
+   * The `deleted` property is a boolean flag that
+   * indicates whether to get only deleted items in the
    * results or not.
    */
   @IsOptional()
   @ToBoolean()
   @IsBoolean()
-  withDeleted?: boolean = false;
+  deleted?: boolean = false;
 }
 
 export class PageOptionsDTO extends DeepPageOptionsDTO {
-  /**
-   * Results page you want to retrieve (0..N)
-   */
+  /* Results page you want to retrieve (0..N) */
+  @IsOptional()
   @Type(() => Number)
   @IsInt()
-  @IsOptional()
   page?: number = 1;
 
-  /**
-   * Number of results per page
-   */
+  /* Number of results per page */
+  @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Max(100)
-  @IsOptional()
   readonly take?: number = 5;
 
-  get skip(): number {
-    return this.page <= 0 ? (this.page = 0) : (this.page - 1) * this.take;
-  }
-
-  /**
-   * Sorting order
-   */
+  /* Sorting order */
+  @IsOptional()
   @IsEnum(QueryOrder)
-  @IsOptional()
-  readonly order?: QueryOrder = QueryOrder.ASC;
+  readonly order?: QueryOrder = QueryOrder.DESC;
 
-  /**
-   * Sorting criteria
-   */
+  /* Sorting criteria */
+  @IsOptional()
   @IsString()
-  @IsOptional()
-  @MaxLength(50)
-  readonly sort?: string = 'id';
+  @MaxLength(30)
+  readonly sort?: string = 'created_at';
 }
 
-export interface QBOPaginationOptions<T extends Dictionary> {
-  pageOptionsDTO: PageOptionsDTO;
-  qb: QueryBuilder<T>;
-}
+export const getSkip = (page: number, take: number): number =>
+  page <= 0 ? (page = 0) : (page - 1) * take;

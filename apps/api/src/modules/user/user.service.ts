@@ -2,7 +2,6 @@ import { PageDTO } from '@common/database/types/page.dto';
 import { PageOptionsDTO } from '@common/database/types/page-options.dto';
 import { User } from '@entities';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityManager } from '@mikro-orm/postgresql';
 import { BaseRepository } from '@modules/@lib/base/base.repository';
 import { BaseService } from '@modules/@lib/base/base.service';
 import { Injectable } from '@nestjs/common';
@@ -14,9 +13,8 @@ export class UserService extends BaseService<User> {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: BaseRepository<User>,
-    private readonly em: EntityManager,
   ) {
-    super(userRepository, em);
+    super(userRepository);
   }
 
   async getPaginated(pageOptionsDTO: PageOptionsDTO): Promise<PageDTO<User>> {

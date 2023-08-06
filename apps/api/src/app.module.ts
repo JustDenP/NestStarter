@@ -3,10 +3,9 @@ import { HttpCacheInterceptor } from '@common/interceptors/cache.interceptor';
 import { ClearCacheInterceptor } from '@common/interceptors/clear-cache.interceptor';
 import { StaticTimeoutInterceptor } from '@common/interceptors/static-timeout-handle.interceptor';
 import { RealIpMiddleware } from '@common/middlewares/ip.middleware';
-import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { NestCacheModule } from '@modules/@lib/cache/cache.module';
 import { NestHttpModule } from '@modules/@lib/http.module';
-import { NestJwtModule } from '@modules/@lib/jwt.module';
+import { OrmModule } from '@modules/@lib/orm.module';
 import { NestPinoModule } from '@modules/@lib/pino';
 import { NestTrottleModule } from '@modules/@lib/trottle.module';
 import { AuthModule } from '@modules/auth/auth.module';
@@ -17,7 +16,6 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 
 import { ApiConfigModule } from './modules/@lib/config/config.module';
-import { getOrmConfig } from './modules/@lib/config/configs/database.config';
 import { HealthCheckerModule } from './modules/health-checker/health-checker.module';
 import { UserModule } from './modules/user/user.module';
 
@@ -25,15 +23,11 @@ import { UserModule } from './modules/user/user.module';
   imports: [
     ApiConfigModule,
     NestPinoModule,
-    MikroOrmModule.forRootAsync({
-      imports: [ApiConfigModule],
-      useFactory: () => getOrmConfig(false),
-    }),
+    OrmModule,
     NestHttpModule,
     NestTrottleModule,
     NestCacheModule,
     HealthCheckerModule,
-    NestJwtModule,
     TokenModule,
     AuthModule,
     UserModule,

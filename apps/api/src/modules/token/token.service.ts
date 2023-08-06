@@ -1,7 +1,8 @@
 import { Msgs } from '@common/@types/constants/messages';
 import { User } from '@entities';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { BaseRepository } from '@modules/@lib/base/base.repository';
 import { ApiConfigService } from '@modules/@lib/config/config.service';
-import { UserService } from '@modules/user/user.service';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { RefreshToken } from 'entities/refresh-token.entity';
@@ -12,7 +13,8 @@ import { TokenRepository } from './token.repository';
 @Injectable()
 export class TokenService {
   constructor(
-    private readonly userService: UserService,
+    @InjectRepository(User)
+    private readonly userRepository: BaseRepository<User>,
     private readonly tokenRepository: TokenRepository,
     public readonly jwtService: JwtService,
     private readonly configService: ApiConfigService,
@@ -122,9 +124,7 @@ export class TokenService {
 
     if (!subId) throw new UnauthorizedException(Msgs.exception.tokenMalformed);
 
-    return this.userService._findOne({
-      id: Number(subId),
-    });
+    return this.userRepository.findById(Number(subId));
   }
 
   /**

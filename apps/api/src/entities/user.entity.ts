@@ -73,7 +73,7 @@ export class User extends AbstractBaseEntity {
   async hashPassword(arguments_: EventArgs<this>) {
     const payload = arguments_.changeSet?.payload;
 
-    if (payload?.password || payload['password'].length > 0) {
+    if (payload?.password || payload['password']?.length > 0) {
       this.password = CryptUtils.generateHash(this.password);
     }
   }

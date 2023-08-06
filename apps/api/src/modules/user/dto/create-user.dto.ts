@@ -26,7 +26,7 @@ export class CreateUserDTO {
    * @example SomePassword@123
    */
   @IsString()
-  @MinMaxLength({ minLength: 6, maxLength: 50 })
+  @MinMaxLength({ minLength: 6, maxLength: 150 })
   @IsPassword()
   password: string;
 
@@ -35,7 +35,7 @@ export class CreateUserDTO {
    * @example John
    */
   @IsString()
-  @MinMaxLength({ minLength: 3, maxLength: 20 })
+  @MinMaxLength({ minLength: 3, maxLength: 50 })
   firstName: string;
 
   /**
@@ -43,6 +43,6 @@ export class CreateUserDTO {
    * @example Doe
    */
   @IsString()
-  @MinMaxLength({ minLength: 3, maxLength: 20 })
+  @MinMaxLength({ minLength: 3, maxLength: 50 })
   lastName: string;
 }

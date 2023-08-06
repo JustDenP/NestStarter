@@ -1,18 +1,18 @@
+import { User } from '@entities';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { BaseRepository } from '@modules/@lib/base/base.repository';
 import { ApiConfigService } from '@modules/@lib/config/config.service';
-import { UserService } from '@modules/user/user.service';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { JwtPayload } from 'jsonwebtoken';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
-import { AuthService } from '../auth.service';
-
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
-    private readonly userService: UserService,
+    @InjectRepository(User)
+    private readonly userRepository: BaseRepository<User>,
     private readonly configService: ApiConfigService,
-    private readonly authService: AuthService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -25,7 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const { sub } = payload;
 
     // Accept the JWT and attempt to validate it using the user service
-    const user = await this.userService._findOne({ id: Number(sub) });
+    const user = await this.userRepository.findOne({ id: Number(sub) });
 
     if (!user) {
       throw new UnauthorizedException();

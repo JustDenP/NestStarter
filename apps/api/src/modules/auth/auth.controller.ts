@@ -26,6 +26,7 @@ export class AuthController {
     return this.authService.register(data);
   }
 
+  @HttpCode(200)
   @ApiOperation({ summary: 'User Login' })
   @Post('login')
   login(@Body() credentials: UserLoginDTO): Promise<AuthenticationResponse> {
