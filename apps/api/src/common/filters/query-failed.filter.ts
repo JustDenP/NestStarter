@@ -20,14 +20,14 @@ export class QueryFailedFilter implements ExceptionFilter {
         ? HttpStatus.CONFLICT
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const message = STATUS_CODES[statusCode];
-    let errors;
+    const error = STATUS_CODES[statusCode];
+    let message;
 
     if (exception?.constraint) {
       const constraint = exception.constraint;
       const detail = exception.detail;
 
-      errors = {
+      message = {
         constraint,
         detail,
       };
@@ -38,8 +38,8 @@ export class QueryFailedFilter implements ExceptionFilter {
      */
     const ErrorResponse: IErrorResponse = {
       statusCode,
+      error,
       message,
-      errors,
       details: {
         path: request.url,
         timestamp: new Date().toISOString(),

@@ -11,20 +11,19 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    /* Get default code and messages from exception */
+    /* Get default code and error from exception */
     const statusCode =
       exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
-    const message =
-      exception instanceof HttpException ? exception.message : STATUS_CODES[statusCode];
+    const error = exception instanceof HttpException ? exception.message : STATUS_CODES[statusCode];
 
     /* If this is validation error, we provide additional info about whats wrong */
-    let errors: ValidationError[] | undefined;
+    let message: ValidationError[] | undefined;
 
     if (exception instanceof UnprocessableEntityException) {
       const res: any = exception.getResponse();
 
       if (res.message) {
-        errors = res.message;
+        message = res.message;
       }
     }
 
@@ -33,8 +32,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
      */
     const ErrorResponse: IErrorResponse = {
       statusCode,
+      error,
       message,
-      errors,
       details: {
         path: request.url,
         timestamp: new Date().toISOString(),

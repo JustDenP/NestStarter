@@ -1,7 +1,7 @@
 export interface IErrorResponse {
   statusCode: number;
-  message: string | undefined;
-  errors: any;
+  error: string | undefined;
+  message: any;
   details: {
     path: string;
     timestamp: string;
