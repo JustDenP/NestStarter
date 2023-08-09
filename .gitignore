@@ -1,3 +1,6 @@
+# temp
+web
+
 # compiled output
 dist
 node_modules
@@ -12,6 +15,7 @@ build
 .next/**
 /.pnpm-store
 .backup
+/out/
 
 *.env
 development.env

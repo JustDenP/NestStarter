@@ -43,19 +43,24 @@ export class AuthService {
     return user;
   }
 
-  async login(credentials: UserLoginDTO, isPasswordLogin = true): Promise<AuthenticationResponse> {
+  async login(
+    credentials: UserLoginDTO,
+    isPasswordLogin = true,
+  ): Promise<AuthenticationResponse | any> {
     const user = await this.validateUser(isPasswordLogin, credentials.email, credentials.password);
 
     await this.userRepository.update(user, { lastLogin: new Date() });
     const accessToken = await this.tokenService.generateAccessToken(user);
     const refreshToken = await this.tokenService.generateRefreshToken(user);
 
+    delete user.password;
+
     return {
-      user: {
-        id: user.id,
-      },
-      accessToken: accessToken,
-      ...(refreshToken ? { refresh_token: refreshToken } : {}),
+      ...user,
+      accessToken,
+      refreshToken,
+
+      // ...(refreshToken ? { refresh_token: refreshToken } : {}),
     };
   }
 

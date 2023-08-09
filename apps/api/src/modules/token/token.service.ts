@@ -82,11 +82,13 @@ export class TokenService {
    * generates an access token for that user
    * @returns { token: string; user: User }
    */
-  async createAccessTokenFromRefreshToken(refresh: string): Promise<{ token: string; user: User }> {
+  async createAccessTokenFromRefreshToken(
+    refresh: string,
+  ): Promise<{ accessToken: string; user: User }> {
     const { user } = await this.resolveRefreshToken(refresh);
-    const token = await this.generateAccessToken(user);
+    const accessToken = await this.generateAccessToken(user);
 
-    return { token, user };
+    return { user, accessToken };
   }
 
   /**
