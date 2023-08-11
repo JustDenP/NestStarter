@@ -5,15 +5,23 @@ import { PageOptionsDTO } from '@common/database/types/page-options.dto';
 import { User } from '@entities';
 import { Auth } from '@modules/auth/decorators/auth.decorator';
 import { _Controller } from '@modules/auth/decorators/auth-controller.decorator';
+import { AuthUser } from '@modules/auth/decorators/auth-user.decorator';
 import { Body, Delete, Get, Param, Patch, Query } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 
 import { UpdateUserDTO } from './dto/update.dto';
 import { UserService } from './user.service';
 
-@_Controller('users', false)
+@_Controller('users', true)
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @Auth()
+  @ApiOperation({ summary: 'Me' })
+  @Get('me')
+  async me(@AuthUser() user: User): Promise<User> {
+    return this.userService.findById(user.id);
+  }
 
   @ApiOperation({ summary: 'Get users paginated' })
   @Get()

@@ -6,6 +6,7 @@ import { RequiredEntityData } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { BaseRepository } from '@modules/@lib/base/base.repository';
+import { ApiConfigService } from '@modules/@lib/config/config.service';
 import { TokenService } from '@modules/token/token.service';
 import { RegisterUserDTO } from '@modules/user/dto/sign/user-register.dto';
 import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
@@ -19,6 +20,7 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: BaseRepository<User>,
     private readonly tokenService: TokenService,
+    private readonly configService: ApiConfigService,
     private readonly em: EntityManager,
   ) {}
 
@@ -53,15 +55,7 @@ export class AuthService {
     const accessToken = await this.tokenService.generateAccessToken(user);
     const refreshToken = await this.tokenService.generateRefreshToken(user);
 
-    delete user.password;
-
-    return {
-      ...user,
-      accessToken,
-      refreshToken,
-
-      // ...(refreshToken ? { refresh_token: refreshToken } : {}),
-    };
+    return [user, accessToken, refreshToken];
   }
 
   async register(data: RegisterUserDTO) {
@@ -77,13 +71,19 @@ export class AuthService {
     return this.userRepository.findById(newUser.id);
   }
 
-  async logoutFromAll(user: User): Promise<boolean> {
-    return this.tokenService.deleteAllRefreshTokens(user);
-  }
-
   async logout(user: User, refreshToken: string): Promise<User> {
     const payload = await this.tokenService.decodeRefreshToken(refreshToken);
 
     return this.tokenService.deleteRefreshToken(user, payload);
+  }
+
+  async logoutFromAll(user: User): Promise<boolean> {
+    return this.tokenService.deleteAllRefreshTokens(user);
+  }
+
+  public createCookieToken(token: string, type: 'Authentication' | 'Refresh'): string {
+    return `${type}=${token}; HttpOnly; Path=/; Max-Age=${this.configService.getString(
+      'token.jwtRefreshExpirationTime',
+    )}`;
   }
 }

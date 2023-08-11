@@ -1,8 +1,19 @@
 import { User } from '@entities';
 import { TokenService } from '@modules/token/token.service';
 import { RegisterUserDTO } from '@modules/user/dto/sign/user-register.dto';
-import { Body, DefaultValuePipe, HttpCode, ParseBoolPipe, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  DefaultValuePipe,
+  HttpCode,
+  ParseBoolPipe,
+  Post,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
+import { Response } from 'express';
 
 import { AuthService } from './auth.service';
 import { Auth } from './decorators/auth.decorator';
@@ -10,7 +21,8 @@ import { _Controller } from './decorators/auth-controller.decorator';
 import { AuthUser } from './decorators/auth-user.decorator';
 import { RefreshTokenDTO } from './dto/req-refresh-token.dto';
 import { UserLoginDTO } from './dto/user-login.dto';
-import { AuthenticationResponse } from './types/auth-response';
+import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
+import IRequestWithUser from './types/interfaces/request-with-user.interface';
 
 @_Controller('auth', false)
 export class AuthController {
@@ -29,16 +41,29 @@ export class AuthController {
   @HttpCode(200)
   @ApiOperation({ summary: 'User Login' })
   @Post('login')
-  login(@Body() credentials: UserLoginDTO): Promise<AuthenticationResponse> {
-    return this.authService.login(credentials);
+  // OLD Promise<AuthenticationResponse>
+  async login(@Body() credentials: UserLoginDTO, @Res({ passthrough: true }) response: Response) {
+    const [user, accessToken, refreshToken] = await this.authService.login(credentials);
+    delete user.password;
+
+    const accessCookie = this.authService.createCookieToken(accessToken, 'Authentication');
+    const refreshCookie = this.authService.createCookieToken(refreshToken, 'Refresh');
+
+    response.setHeader('Set-Cookie', [accessCookie, refreshCookie]);
+
+    return user;
   }
 
+  @UseGuards(JwtRefreshGuard)
   @ApiOperation({ summary: 'Refresh token' })
   @Post('token/refresh')
-  async refresh(@Body() body: RefreshTokenDTO) {
-    const token = await this.tokenService.createAccessTokenFromRefreshToken(body.refreshToken);
+  async refresh(@AuthUser() user: User, @Res({ passthrough: true }) response: Response) {
+    const accessToken = await this.tokenService.generateAccessToken(user);
+    const accessCookie = this.authService.createCookieToken(accessToken, 'Authentication');
 
-    return { token };
+    response.setHeader('Set-Cookie', accessCookie);
+
+    return user;
   }
 
   @Auth()

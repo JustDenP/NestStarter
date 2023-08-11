@@ -4,7 +4,7 @@ import process from 'process';
 const logger = new Logger('App:Utils');
 
 export const AppUtils = {
-  /* A function that is called when the process receives a signal. */
+  /* The function is called when the process receives a signal. */
   gracefulShutdown(app: INestApplication, code: string): void {
     setTimeout(() => process.exit(1), 5000);
     logger.verbose(`Signal received with code ${code} ⚡.`);

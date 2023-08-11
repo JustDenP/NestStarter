@@ -1,5 +1,4 @@
-# temp
-web
+web-old/
 
 # compiled output
 dist
@@ -12,7 +11,7 @@ coverage/
 .cache
 temp
 build
-.next/**
+.next/
 /.pnpm-store
 .backup
 /out/
