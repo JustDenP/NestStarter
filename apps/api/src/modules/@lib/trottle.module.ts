@@ -5,7 +5,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
   imports: [
     ThrottlerModule.forRoot({
       ttl: 30,
-      limit: 10,
+      limit: 20,
       ignoreUserAgents: [
         // Don't throttle request that have 'googlebot' defined in them.
         // Example user agent: Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)

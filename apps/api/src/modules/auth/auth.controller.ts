@@ -46,12 +46,10 @@ export class AuthController {
     const [user, accessToken, refreshToken] = await this.authService.login(credentials);
     delete user.password;
 
-    const accessCookie = this.authService.createCookieToken(accessToken, 'Authentication');
     const refreshCookie = this.authService.createCookieToken(refreshToken, 'Refresh');
+    response.setHeader('Set-Cookie', [refreshCookie]);
 
-    response.setHeader('Set-Cookie', [accessCookie, refreshCookie]);
-
-    return user;
+    return { user, accessToken };
   }
 
   @UseGuards(JwtRefreshGuard)
