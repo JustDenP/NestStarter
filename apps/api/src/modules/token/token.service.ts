@@ -64,17 +64,17 @@ export class TokenService {
    * the user and token in the database, and returns them
    * @returns An object with a user and a token.
    */
-  async resolveRefreshToken(encoded: string): Promise<{ user: User; token: RefreshToken }> {
+  async resolveRefreshToken(encoded: string): Promise<{ user: User; storedToken: RefreshToken }> {
     const decoded = await this.decodeRefreshToken(encoded);
-    const token = await this.getStoredTokenFromRefreshTokenPayload(decoded);
+    const storedToken = await this.getStoredTokenFromRefreshTokenPayload(decoded);
 
-    if (!token) throw new UnauthorizedException(Msgs.exception.tokenNotFound);
-    if (!token.isActive) throw new UnauthorizedException(Msgs.exception.tokenRevoked);
+    if (!storedToken) throw new UnauthorizedException(Msgs.exception.tokenNotFound);
+    if (!storedToken.isActive) throw new UnauthorizedException(Msgs.exception.tokenRevoked);
 
     const user = await this.getUserFromRefreshTokenPayload(decoded);
     if (!user) throw new UnauthorizedException(Msgs.exception.tokenMalformed);
 
-    return { user, token };
+    return { user, storedToken };
   }
 
   /**

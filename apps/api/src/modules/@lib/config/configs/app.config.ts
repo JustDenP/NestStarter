@@ -5,5 +5,5 @@ export const app = registerAs('app', () => ({
   baseUrl: process.env.URL,
   apiVersion: process.env.API_VERSION,
   isCors: true,
-  allowedHosts: '*',
+  allowedHosts: ['http://localhost:3000'],
 }));

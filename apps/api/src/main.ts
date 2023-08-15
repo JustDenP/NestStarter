@@ -49,20 +49,15 @@ async function bootstrap() {
   /**
    * Security
    */
-  app.use(compression());
-  app.use(cookieParser());
-  app.enable('trust proxy');
-  app.set('etag', 'strong');
   app.use(
+    compression(),
+    cookieParser(),
+    helmet(),
     bodyParser.json({ limit: '10mb' }),
     bodyParser.urlencoded({ limit: '10mb', extended: true }),
   );
-  app.use(
-    helmet({
-      contentSecurityPolicy: false,
-      crossOriginEmbedderPolicy: false,
-    }),
-  );
+  app.enable('trust proxy');
+  app.set('etag', 'strong');
   app.enableCors({
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',

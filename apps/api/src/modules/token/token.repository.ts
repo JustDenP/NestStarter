@@ -34,20 +34,22 @@ export class TokenRepository {
       user: user.id,
       expiresIn: expiration,
     });
-    this.em.persistAndFlush(token);
+    await this.em.persistAndFlush(token);
 
-    // TODO Find out how to get created without refetch from DB
-    return this.refreshTokenRepository.findOne(token);
+    return token;
   }
 
   async deleteAllTokens(user: User): Promise<boolean> {
-    this.refreshTokenRepository.nativeUpdate({ user }, { isActive: false, deletedAt: new Date() });
+    await this.refreshTokenRepository.nativeUpdate(
+      { user },
+      { isActive: false, deletedAt: new Date() },
+    );
 
     return true;
   }
 
   async deleteToken(user: User, tokenId: number): Promise<boolean> {
-    this.refreshTokenRepository.nativeUpdate(
+    await this.refreshTokenRepository.nativeUpdate(
       { user, id: tokenId },
       { isActive: false, deletedAt: new Date() },
     );
