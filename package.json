@@ -1,20 +1,22 @@
 {
   "name": "dragon",
   "private": true,
-  "scripts": {
-    "dev": "dotenv -- turbo run dev",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "prepare": "husky install"
-  },
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
+  "scripts": {
+    "dev": "dotenv -- turbo run dev",
+    "eslint:check": "eslint \"{src,apps,libs,test}/**/*.ts\"",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "lint": "npm run eslint:check && npm run format",
+    "precommit": "npm run lint",
+    "prepare": "husky install"
+  },
+  "pre-commit": "lint-staged",
   "devDependencies": {
     "@commitlint/cli": "^17.6.6",
     "@commitlint/config-conventional": "^17.6.6",
-    "@semantic-release/git": "^10.0.1",
-    "@semantic-release/github": "^9.0.3",
     "@typescript-eslint/eslint-plugin": "^6.2.1",
     "@typescript-eslint/parser": "^6.2.1",
     "cross-env": "^7.0.3",
@@ -26,9 +28,9 @@
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "husky": "^8.0.0",
+    "lint-staged": "^14.0.0",
     "prettier": "^3.0.1",
     "rimraf": "^5.0.1",
-    "semantic-release": "^21.0.5",
     "turbo": "^1.10.12",
     "typescript": "~5.1.6"
   },

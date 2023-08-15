@@ -1,9 +1,12 @@
 {
-  "*.{ts,tsx}": [
+  "{src,apps,packages,test}/**/*.{ts,tsx}": [
     "eslint '{src,test}/**/*.ts' --ignore-path ./eslintignore --cache --fix",
     "prettier --cache --write"
   ],
-  "*.{json,md,yaml,yml}": [
+  "*./**/*.{ts,js,json,*rc}": [
     "prettier --cache --write"
+  ],
+  "package.json": [
+    "npx -y sort-package-json"
   ]
 }

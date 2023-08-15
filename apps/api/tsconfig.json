@@ -13,5 +13,5 @@
   },
   "exclude": ["node_modules", "dist"],
   "extends": "@local/tsconfig/nestjs.json",
-  "include": ["test/**/*", "src/**/*", ".eslint.json"]
+  "include": ["test/**/*", "src/**/*", ".eslintrc.js"]
 }
