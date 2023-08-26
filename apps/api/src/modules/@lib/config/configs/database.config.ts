@@ -1,4 +1,4 @@
-import { HelperService } from '@common/helpers/helpers';
+import { HelperService } from '@common/utils/helpers/helpers';
 import type { Options } from '@mikro-orm/core';
 import { LoadStrategy, UnderscoreNamingStrategy } from '@mikro-orm/core';
 import { logger } from '@mikro-orm/nestjs';

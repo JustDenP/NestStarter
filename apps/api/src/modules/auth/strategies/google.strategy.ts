@@ -1,4 +1,4 @@
-import { GeneratorUtils } from '@common/helpers/generator';
+import { GeneratorUtils } from '@common/utils/helpers/generator';
 import { User } from '@entities';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { BaseRepository } from '@modules/@lib/base/base.repository';

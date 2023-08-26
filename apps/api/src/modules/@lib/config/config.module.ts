@@ -1,4 +1,4 @@
-import { HelperService } from '@common/helpers/helpers';
+import { HelperService } from '@common/utils/helpers/helpers';
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 

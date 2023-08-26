@@ -1,7 +1,8 @@
 import { Role } from '@common/@types/enums/roles.enum';
 import { AbstractBaseEntity } from '@common/database/abstract_entities/abstract-base.entity';
 import { WithSoftDelete } from '@common/database/filters/with-soft-delete';
-import { CryptUtils } from '@common/helpers/crypt';
+import { WorkerActions } from '@common/workers/actions';
+import { pool } from '@common/workers/worker.pool';
 import {
   BeforeCreate,
   BeforeUpdate,
@@ -74,7 +75,11 @@ export class User extends AbstractBaseEntity {
     const payload = arguments_.changeSet?.payload;
 
     if (payload?.password || payload['password']?.length > 0) {
-      this.password = CryptUtils.generateHash(this.password);
+      /* Hash string from worker */
+      this.password = (await pool.execute(
+        { action: WorkerActions.HashString, payload: this.password },
+        'workerFunction',
+      )) as string;
     }
   }
 }

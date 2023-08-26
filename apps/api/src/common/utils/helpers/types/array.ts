@@ -1,4 +1,4 @@
-import { IMinMaxRangeInterval } from '@common/@types/interfaces/common.interface';
+import { IMinMaxRangeInterval } from '@local/types';
 
 export const ArrayUtils = {
   /**

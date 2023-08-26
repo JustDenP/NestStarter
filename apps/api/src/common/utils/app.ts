@@ -1,11 +1,11 @@
-import { INestApplication, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import process from 'process';
 
 const logger = new Logger('App:Utils');
 
 export const AppUtils = {
   /* The function is called when the process receives a signal. */
-  gracefulShutdown(app: INestApplication, code: string): void {
+  gracefulShutdown(app, code: string): void {
     setTimeout(() => process.exit(1), 5000);
     logger.verbose(`Signal received with code ${code} ⚡.`);
     logger.log('❗Closing http server with grace.');
@@ -15,7 +15,7 @@ export const AppUtils = {
     });
   },
 
-  killAppWithGrace(app: INestApplication): void {
+  killAppWithGrace(app): void {
     process.on('SIGINT', async () => {
       AppUtils.gracefulShutdown(app, 'SIGINT');
     });

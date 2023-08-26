@@ -6,7 +6,7 @@ import { RealIpMiddleware } from '@common/middlewares/ip.middleware';
 import { NestCacheModule } from '@modules/@lib/cache/cache.module';
 import { NestHttpModule } from '@modules/@lib/http.module';
 import { OrmModule } from '@modules/@lib/orm.module';
-import { NestPinoModule } from '@modules/@lib/pino';
+import { NestPinoModule } from '@modules/@lib/pino/pino.module';
 import { NestTrottleModule } from '@modules/@lib/trottle.module';
 import { AuthModule } from '@modules/auth/auth.module';
 import { TokenModule } from '@modules/token/token.module';

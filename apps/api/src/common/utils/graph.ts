@@ -1,9 +1,8 @@
 import * as fs from 'node:fs';
 
-import { NestExpressApplication } from '@nestjs/platform-express';
 import { SpelunkerModule } from 'nestjs-spelunker';
 
-export default function createDependencyGraph(app: NestExpressApplication): void {
+export function createDependencyGraph(app): void {
   /**
    * Generate the tree as text
    * Copy and paste the log content in "https://mermaid.live/"

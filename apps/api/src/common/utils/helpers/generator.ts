@@ -1,7 +1,7 @@
 import slugify from 'slugify';
 
 export const GeneratorUtils = {
-  generateVerificationCode: (): string => Math.floor(100000 + Math.random() * 900000).toString(),
+  generateVerificationCode: (): number => Math.floor(100000 + Math.random() * 900000),
 
   generatePassword: (): string => {
     const lowercase = 'abcdefghijklmnopqrstuvwxyz';

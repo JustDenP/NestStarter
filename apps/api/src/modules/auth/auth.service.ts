@@ -1,6 +1,6 @@
 import { Msgs } from '@common/@types/constants/messages';
 import { Role } from '@common/@types/enums/roles.enum';
-import { CryptUtils } from '@common/helpers/crypt';
+import { CryptUtils } from '@common/utils/helpers/crypt';
 import { User } from '@entities';
 import { RequiredEntityData } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';

@@ -1,9 +1,0 @@
-{
-  "name": "@local/tsconfig",
-  "version": "0.0.1",
-  "private": true,
-  "main": "index.js",
-  "files": [
-    "nestjs.json"
-  ]
-}

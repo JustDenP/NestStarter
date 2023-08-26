@@ -2,10 +2,11 @@ import 'reflect-metadata';
 
 import { HttpExceptionFilter } from '@common/filters/http-exception.filter';
 import { QueryFailedFilter } from '@common/filters/query-failed.filter';
-import { HelperService } from '@common/helpers/helpers';
 import { AppUtils } from '@common/utils/app';
+import { createDependencyGraph } from '@common/utils/graph';
+import { HelperService } from '@common/utils/helpers/helpers';
 import { setupSwagger } from '@modules/@lib/config/setup-swagger';
-import { createLogger } from '@modules/@lib/pino';
+import { createLogger } from '@modules/@lib/pino/app.logger';
 import {
   ClassSerializerInterceptor,
   HttpStatus,
@@ -21,7 +22,6 @@ import chalk from 'chalk';
 import { useContainer } from 'class-validator';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
-import createDependencyGraph from 'graph';
 import helmet from 'helmet';
 import { LoggerErrorInterceptor } from 'nestjs-pino';
 

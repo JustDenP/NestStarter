@@ -1,8 +1,8 @@
 import { AbstractBaseEntity } from '@common/database/abstract_entities/abstract-base.entity';
 import { PageDTO, PageMetaDTO, QBOPaginationOptions } from '@common/database/types/page.dto';
 import { getSkip } from '@common/database/types/page-options.dto';
-import { HelperService } from '@common/helpers/helpers';
-import { StringUtils } from '@common/helpers/types/string';
+import { HelperService } from '@common/utils/helpers/helpers';
+import { StringUtils } from '@common/utils/helpers/types/string';
 import { User } from '@entities';
 import { EntityData, EntityName, FilterQuery, FindOneOptions } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';

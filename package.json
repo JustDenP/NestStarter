@@ -1,22 +1,20 @@
 {
   "name": "dragon",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
-    "dev": "dotenv -- turbo run dev",
+    "dev": "dotenv -- turbo run dev --parallel",
+    "build": "dotenv -- turbo run build",
     "eslint:check": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "lint": "npm run eslint:check && npm run format",
-    "precommit": "npm run lint",
+    "lint": "pnpm run eslint:check && pnpm run format",
+    "precommit": "pnpm run lint",
     "prepare": "husky install"
   },
   "pre-commit": "lint-staged",
   "devDependencies": {
     "@commitlint/cli": "^17.6.6",
     "@commitlint/config-conventional": "^17.6.6",
+    "@types/node": "^20.5.1",
     "@typescript-eslint/eslint-plugin": "^6.2.1",
     "@typescript-eslint/parser": "^6.2.1",
     "cross-env": "^7.0.3",
@@ -29,7 +27,7 @@
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "husky": "^8.0.0",
     "lint-staged": "^14.0.0",
-    "prettier": "^3.0.1",
+    "prettier": "^3.0.2",
     "rimraf": "^5.0.1",
     "turbo": "^1.10.12",
     "typescript": "~5.1.6"
@@ -37,5 +35,7 @@
   "engines": {
     "node": ">= 20.0.0"
   },
-  "packageManager": "npm@9.0.0"
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  }
 }
